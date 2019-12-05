@@ -1,2 +1,20 @@
 ---
-# handlers
+- name: Reload Daemon
+  systemd:
+    daemon_reload: yes
+
+- name: Enable keycloak
+  service:
+    name: keycloak
+    enabled: yes
+
+- name: Start keycloak
+  service:
+    name: keycloak
+    state: started
+
+- name: Restart keycloak
+  service:
+    name: keycloak
+    enabled: yes
+    state: restarted

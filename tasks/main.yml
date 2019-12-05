@@ -1,7 +1,95 @@
 ---
-# Variable setup.
-- name: Include OS-Specific variables
-  include_vars: "{{ ansible_os_family }}.yml"
-  
-- include_tasks: setup-Debian.yml
-  when: ansible_os_family == 'Debian'
+- name: Create keycloak directory
+  file:
+    path: /opt/keycloak
+    state: directory
+
+- name: Download and Extract Keycloak Server
+  unarchive:
+     src: '{{ keyclaok_url }}'
+     dest: /opt/keycloak
+     remote_src: yes
+     extra_opts: [--strip-components=1]
+
+- name: Create group Keycloak
+  group:
+    name: keycloak
+    state: present
+
+- name: Create user Keycloak
+  user:
+    name: keycloak
+    system: yes
+    groups: keycloak
+    home: /opt/keycloak
+    shell: /sbin/nologin
+    append: yes
+
+- name: Change file ownership and group for keycloak
+  file:
+    path: /opt/keycloak
+    state: directory
+    owner: keycloak
+    group: keycloak
+    recurse: yes
+
+- name: Change file permissions of bin
+  file:
+    path: /opt/keycloak/bin
+    owner: keycloak
+    group: users
+    mode: '0751'
+
+- name: Creating Keycloak configuration directory
+  file:
+    path: /etc/keycloak
+    state: directory
+    mode: '0755'
+
+- name: Copy Keycloak configuration file
+  copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    remote_src: yes
+    mode: preserve
+  with_items:
+    - { src: /opt/keycloak/docs/contrib/scripts/systemd/wildfly.conf,
+        dest: /etc/keycloak/keycloak.conf }
+    - { src: /opt/keycloak/docs/contrib/scripts/systemd/launch.sh,
+        dest: /opt/keycloak/bin/ }
+  become: true
+
+- name: Change file ownership of launch.sh
+  file:
+    path: /opt/keycloak/bin/launch.sh
+    owner: keycloak
+    group: keycloak
+    mode: 0755
+
+- name: Update the Keycloak installation path
+  replace:
+    path: /opt/keycloak/bin/launch.sh
+    regexp: 'WILDFLY_HOME=.*$'
+    replace: WILDFLY_HOME="/opt/keycloak"
+
+- name: Configure keycloak.service
+  template:
+      src: keycloak.service.j2
+      dest: /etc/systemd/system/keycloak.service
+
+  notify:
+     - Reload Daemon
+     - Enable keycloak
+     - Start keycloak
+
+- name: Run a script to create the initial administrator account
+  shell: '/opt/keycloak/bin/add-user-keycloak.sh -r master -u {{ username }} -p {{ password }}'
+
+  notify:
+     - Restart keycloak
+
+- name: Start an authenticated session by providing admin user credentials
+  shell: '/opt/keycloak/bin/kcadm.sh config credentials --server http://{{ ansible_default_ipv4.address }}:8080/auth --realm master --user {{ username }} --password {{ password }}'
+
+- name: Disable SSL on master realm
+  shell: '/opt/keycloak/bin/kcadm.sh update realms/master -s sslRequired=NONE'

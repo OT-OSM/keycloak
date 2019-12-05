@@ -1,3 +1,7 @@
 ---
+keyclaok_version: 6.0.1
+base_url: https://downloads.jboss.org/keycloak
+version_url: '/{{ keyclaok_version }}/keycloak-{{ keyclaok_version }}.tar.gz'
+keyclaok_url: '{{ base_url }}{{ version_url }}'
 username: root
 password: root123
