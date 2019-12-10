@@ -1,20 +1,12 @@
 ---
-- name: Reload Daemon
+- name: Start Keycloak
   systemd:
     daemon_reload: yes
-
-- name: Enable keycloak
-  service:
-    name: keycloak
-    enabled: yes
-
-- name: Start keycloak
-  service:
-    name: keycloak
     state: started
-
-- name: Restart keycloak
-  service:
     name: keycloak
     enabled: yes
+
+- name: Restart Keycloak
+  systemd:
+    name: keycloak
     state: restarted
