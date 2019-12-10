@@ -11,23 +11,51 @@ There is no such requirements for the role.
 Role Variables
 --------------
 
-- username: username for administartion
-- password: password for administartion
+We are using below mention variables in this role.
+
+|**Variables**| **Default Values**|**Description**|
+| keyclaok_version | 6.0.1 | Define version of keycloak |
+| base_url | https://downloads.jboss.org/keycloak | Base url to download keycloak |
+| version_url | /6.0.1/keycloak-6.0.1.tar.gz | Version config to download keycloak |
+| keycloak_url | base_url+version_url | Url to download keycloak |
+| username | root | username for administartion |
+| password | root123 | password for administartion |
 
 Dependencies
 ------------
 
 Role required pre-installation of java
 
+## Inventory
+----------------
+
+An inventory should look like this:-
+```ini
+[keycloakhost]                 
+keycloakhost1_ip    ansible_user=ubuntu
+keycloakhost2_ip    ansible_user=centos
+keycloakhost3_ip    ansible_user=opstree                      
+```
+
 Example Playbook
 ----------------
 
-Including an example of how to use your role (for instance, with variables
-passed in as parameters) is always nice for users too:
+Here is an example playbook:-
+```yml
+---
+- hosts: keycloakhost
+  roles:
+    - role: osm_keycloak
+      become: yes
+```
 
-    - hosts: servers
-      roles:
-         - { role: keycloak, x: 42 }
+Usage
+----------------
+
+For using this role you have to execute playbook only
+```shell
+ansible-playbook -i hosts site.yml
+```
 
 License
 -------
@@ -37,4 +65,4 @@ License
 Author Information
 ------------------
 
-Abhishek Vishwakarma (abhishek.vishwakarma@opstree.com).
+**[Abhishek Vishwakarma](mailto:abhishek.vishwakarma@opstree.com)*
