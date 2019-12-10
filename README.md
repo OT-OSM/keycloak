@@ -14,6 +14,7 @@ Role Variables
 We are using below mention variables in this role.
 
 |**Variables**| **Default Values**|**Description**|
+|----------|---------|---------------|
 | keyclaok_version | 6.0.1 | Define version of keycloak |
 | base_url | https://downloads.jboss.org/keycloak | Base url to download keycloak |
 | version_url | /6.0.1/keycloak-6.0.1.tar.gz | Version config to download keycloak |
@@ -32,9 +33,9 @@ Role required pre-installation of java
 An inventory should look like this:-
 ```ini
 [keycloakhost]                 
-keycloakhost1_ip    ansible_user=ubuntu
-keycloakhost2_ip    ansible_user=centos
-keycloakhost3_ip    ansible_user=opstree                      
+192.168.1.194    ansible_user=ubuntu
+192.168.3.138    ansible_user=centos
+192.168.1.152    ansible_user=opstree                      
 ```
 
 Example Playbook
