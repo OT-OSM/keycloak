@@ -1,4 +1,4 @@
 ---
 base_url: https://downloads.jboss.org/keycloak
-version_url: '/{{ keycloak_version }}/keycloak-{{ keycloak_version }}.tar.gz'
-keycloak_url: '{{ base_url }}{{ version_url }}'
+version_conf: '/{{ keycloak_version }}/keycloak-{{ keycloak_version }}.tar.gz'
+keycloak_url_location: '{{ base_url }}{{ version_conf }}'

@@ -20,7 +20,6 @@ Supported OS
   * CentOS:7
   * CentOS:6
   * Ubuntu:bionic
-  * Ubuntu:xenial
 
 Dependencies
 ------------
@@ -36,7 +35,7 @@ We are using below mention variables in this role.
 | keycloak_version | 8.0.1 | Version of keycloak server |
 | base_url | https://downloads.jboss.org/keycloak | Base url in keycloak to install keycloak |
 | version_url | /6.0.1/keycloak-6.0.1.tar.gz | Version specificaton in keycloak url |
-| keycloak_url | {{ base_url }}{{ version_url }} | Url to download keycloak |
+| keycloak_url_location | {{ base_url }}{{ version_url }} | Url to download keycloak |
 | username | root | Username for administartor in keycloak |
 | password | root123 | Password for administartor in keycloak |
 
