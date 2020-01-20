@@ -1,12 +1,30 @@
-Role Name
+Ansible Role: osm_keycloak
 =========
 
-This role will install and configure Keycloak server.
+An ansible role to install and configure Keycloak server.
 
-Requirements
+Version History
+---------------
+
+|**Date**| **Version**| **Description**| **Changed By** |
+|----------|---------|---------------|-----------------|
+|**June '15** | v.1.0 | Initial Draft | Sudipt Sharma |
+
+Salient Features
+----------------
+* This role will fetch and install keycloak version 8.0.1 but if you want to install a specific veriosn you may pass it in variables.
+
+
+Supported OS
 ------------
+  * CentOS:7
+  * CentOS:6
+  * Ubuntu:bionic
+  * Ubuntu:xenial
 
-There is no such requirements for the role.
+Dependencies
+------------
+* Java
 
 Role Variables
 --------------
@@ -14,20 +32,17 @@ Role Variables
 We are using below mention variables in this role.
 
 |**Variables**| **Default Values**|**Description**|
-| keyclaok_version | 6.0.1 | Define version of keycloak |
-| base_url | https://downloads.jboss.org/keycloak | Base url to download keycloak |
-| version_url | /6.0.1/keycloak-6.0.1.tar.gz | Version config to download keycloak |
-| keycloak_url | base_url+version_url | Url to download keycloak |
-| username | root | username for administartion |
-| password | root123 | password for administartion |
+|---|---|---|
+| keycloak_version | 8.0.1 | Version of keycloak server |
+| base_url | https://downloads.jboss.org/keycloak | Base url in keycloak to install keycloak |
+| version_url | /6.0.1/keycloak-6.0.1.tar.gz | Version specificaton in keycloak url |
+| keycloak_url | {{ base_url }}{{ version_url }} | Url to download keycloak |
+| username | root | Username for administartor in keycloak |
+| password | root123 | Password for administartor in keycloak |
 
-Dependencies
-------------
-
-Role required pre-installation of java
 
 ## Inventory
-----------------
+------------
 
 An inventory should look like this:-
 ```ini
@@ -57,9 +72,15 @@ For using this role you have to execute playbook only
 ansible-playbook -i hosts site.yml
 ```
 
-License
--------
+**After the successful installation of keycloak, browse through the keycloak url and you would get your login page**
+![login](./media/login.png)
 
+Future Proposed Changes
+-----------------------
+
+References
+----------
+- **[software](https://www.keycloak.org/)**
 
 
 Author Information
