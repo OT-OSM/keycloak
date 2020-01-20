@@ -37,8 +37,7 @@ We are using below mention variables in this role.
 | version_url | /6.0.1/keycloak-6.0.1.tar.gz | Version specificaton in keycloak url |
 | keycloak_url_location | {{ base_url }}{{ version_url }} | Url to download keycloak |
 | username | root | Username for administartor in keycloak |
-| password | root123 | Password for administartor in keycloak |
-
+| password | root123 | Password for administartor in keycloak 
 
 ## Inventory
 ------------
@@ -46,9 +45,9 @@ We are using below mention variables in this role.
 An inventory should look like this:-
 ```ini
 [keycloakhost]                 
-keycloakhost1_ip    ansible_user=ubuntu
-keycloakhost2_ip    ansible_user=centos
-keycloakhost3_ip    ansible_user=opstree                      
+192.168.1.194    ansible_user=ubuntu
+192.168.3.138    ansible_user=centos
+192.168.1.152    ansible_user=opstree                      
 ```
 
 Example Playbook
