@@ -76,28 +76,26 @@
   template:
       src: keycloak.service.j2
       dest: /etc/systemd/system/keycloak.service
-  notify: 
-  - Start Keycloak
-  tags:
-    - mytag1
+  notify:
+   - Daemon Reload
+   - Start Keycloak
 
-- meta: flush_handlers
-  tags:
-    - mytag1
+- name: Trigger handlers immediately in case Jenkins was installed
+  meta: flush_handlers
 
 - name: Run a script to create the initial administrator account
-  shell: '/opt/keycloak/bin/add-user-keycloak.sh -r master -u {{ username }} -p {{ password }}'
-  notify: 
+  command: '/opt/keycloak/bin/add-user-keycloak.sh -r master -u {{ username }} -p {{ password }}'
+  changed_when: true
+  notify:
   - Restart Keycloak
-  tags:
-    - mytag2
 
-- meta: flush_handlers
-  tags:
-    - mytag2
+- name: Trigger handlers immediately in case Jenkins was installed
+  meta: flush_handlers
 
 - name: Start an authenticated session by providing admin user credentials
-  shell: '/opt/keycloak/bin/kcadm.sh config credentials --server http://{{ ansible_default_ipv4.address }}:8080/auth --realm master --user {{ username }} --password {{ password }}'
+  command: '/opt/keycloak/bin/kcadm.sh config credentials --server http://{{ ansible_default_ipv4.address }}:8080/auth --realm master --user {{ username }} --password {{ password }}'
+  changed_when: true
 
 - name: Disable SSL on master realm
-  shell: '/opt/keycloak/bin/kcadm.sh update realms/master -s sslRequired=NONE'
+  command: '/opt/keycloak/bin/kcadm.sh update realms/master -s sslRequired=NONE'
+  changed_when: true
