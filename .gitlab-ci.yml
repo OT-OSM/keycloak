@@ -1,24 +1,20 @@
 ---
-image: docker:latest
+# -*- coding: utf-8 -*-
 
-services:
-  - docker:dind
+stages:
+  - yaml-lint
+  - ansible-lint
 
-before_script:
-  - apk update && apk add --no-cache
-    python3-dev py3-pip gcc git curl build-base
-    autoconf automake py3-cryptography linux-headers
-    musl-dev libffi-dev openssl-dev openssh
-  - docker info
-  - python3 --version
-  - python3 -m pip install ansible molecule[docker]
-  - python3 -m pip install pytest testinfra
-  - ansible --version
-  - molecule --version
-
-molecule:
-  stage: test
+yaml_lint:
+  stage: yaml-lint
+  image: opstree/docker:ansible-lint
   script:
-    - ansible --version
-    - molecule --version
-    - molecule test
+   - yamllint ./*/*.yml
+  allow_failure: true
+
+ansible_lint:
+  stage: ansible-lint
+  image: opstree/docker:ansible-lint
+  script:
+    - ansible-lint .
+...
