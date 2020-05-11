@@ -1,6 +1,11 @@
 Ansible Role: osm_keycloak
 =========
 
+[![Opstree Solutions][opstree_avatar]][opstree_homepage]<br/>[Opstree Solutions][opstree_homepage] 
+
+  [opstree_homepage]: https://opstree.github.io/
+  [opstree_avatar]: https://img.cloudposse.com/150x150/https://github.com/opstree.png
+
 An ansible role to install and configure Keycloak server.
 
 Version History
@@ -8,7 +13,7 @@ Version History
 
 |**Date**| **Version**| **Description**| **Changed By** |
 |----------|---------|---------------|-----------------|
-|**June '15** | v.1.0 | Initial Draft | Sudipt Sharma |
+|**May '10** | v.1.0 | Initial Draft | Abhishek Vishwakarma |
 
 Salient Features
 ----------------
@@ -20,6 +25,7 @@ Supported OS
   * CentOS:7
   * CentOS:6
   * Ubuntu:bionic
+  * Ubuntu: xenial
 
 Dependencies
 ------------
