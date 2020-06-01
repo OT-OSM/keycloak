@@ -97,7 +97,7 @@
     keycloak_url: 'http://{{ ansible_default_ipv4.address }}:8080/auth'
 
 - name: Start an authenticated session by providing admin user credentials
-  shell: '/opt/keycloak/bin/kcadm.sh config credentials --server {{ keycloak_url }} --realm master --user {{ username }} --password {{ password }}'
+  raw: '/opt/keycloak/bin/kcadm.sh config credentials --server {{ keycloak_url }} --realm master --user {{ username }} --password {{ password }}'
   args:
     warn: false
   retries: 3
@@ -107,5 +107,5 @@
   changed_when: true
 
 - name: Disable SSL on master realm
-  shell: '/opt/keycloak/bin/kcadm.sh update realms/master -s sslRequired=NONE'
+  raw: '/opt/keycloak/bin/kcadm.sh update realms/master -s sslRequired=NONE'
   changed_when: true
