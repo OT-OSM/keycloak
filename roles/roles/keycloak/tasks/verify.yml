@@ -1,0 +1,5 @@
+
+- name: Wait for Keycloak
+  wait_for:
+    port: "{{ keycloak_http_port }}"
+    timeout: 300

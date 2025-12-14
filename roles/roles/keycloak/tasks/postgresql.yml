@@ -1,0 +1,34 @@
+- name: Install PostgreSQL
+  apt:
+    name:
+      - postgresql-{{ postgres_version }}
+      - postgresql-contrib
+    update_cache: yes
+
+- name: Start PostgreSQL
+  systemd:
+    name: postgresql
+    state: started
+    enabled: yes
+
+- name: Create Keycloak database
+  postgresql_db:
+    name: "{{ keycloak_db_name }}"
+    state: present
+  become_user: postgres
+
+- name: Create Keycloak DB user
+  postgresql_user:
+    name: "{{ keycloak_db_user }}"
+    password: "{{ keycloak_db_password }}"
+    state: present
+  become_user: postgres
+
+- name: Grant privileges on database
+  postgresql_privs:
+    database: "{{ keycloak_db_name }}"
+    role: "{{ keycloak_db_user }}"
+    privs: ALL
+    type: database
+    state: present
+  become_user: postgres

@@ -1,0 +1,14 @@
+
+- name: reload systemd
+  systemd:
+    daemon_reload: yes
+
+- name: restart postgresql
+  systemd:
+    name: postgresql
+    state: restarted
+
+- name: restart keycloak
+  systemd:
+    name: keycloak
+    state: restarted

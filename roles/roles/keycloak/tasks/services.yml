@@ -1,0 +1,12 @@
+
+- name: Install systemd service
+  template:
+    src: keycloak.service.j2
+    dest: /etc/systemd/system/keycloak.service
+  notify: reload systemd
+
+- name: Start Keycloak
+  systemd:
+    name: keycloak
+    enabled: yes
+    state: started

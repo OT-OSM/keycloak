@@ -1,0 +1,48 @@
+# ---------------- PostgreSQL ----------------
+postgres_version: "14"
+postgres_port: 5432
+postgres_host: "localhost"
+
+keycloak_db_name: "keycloak"
+keycloak_db_user: "keycloak"
+keycloak_db_password: "change_me"
+
+# ---------------- Keycloak Versioning ----------------
+# Keycloak 17+ (Quarkus-based). Tested with 26.x
+keycloak_version: "26.0.7"
+
+keycloak_archive_name: "keycloak-{{ keycloak_version }}.tar.gz"
+
+keycloak_download_url: >
+  https://github.com/keycloak/keycloak/releases/download/{{ keycloak_version }}/{{ keycloak_archive_name }}
+
+keycloak_install_dir: "/opt/keycloak"
+
+# ---------------- Admin Bootstrap ----------------
+keycloak_admin_user: "admin"
+keycloak_admin_password: "change_me"
+
+# ---------------- Network ----------------
+keycloak_http_port: 8080
+keycloak_hostname: "localhost"
+
+# ---------------- Java ----------------
+# Keycloak requires Java 17+
+java_version: "21"
+
+# ---------------- System User ----------------
+keycloak_user: "keycloak"
+keycloak_group: "keycloak"
+
+# ---------------- TLS / HTTPS ----------------
+# Enable HTTPS directly in Keycloak
+keycloak_https_enabled: false
+
+# Used only if keycloak_https_enabled = true
+keycloak_https_port: 8443
+keycloak_tls_cert_file: ""
+keycloak_tls_key_file: ""
+
+# ---------------- Reverse Proxy ----------------
+# none | edge | reencrypt
+keycloak_proxy_mode: "none"

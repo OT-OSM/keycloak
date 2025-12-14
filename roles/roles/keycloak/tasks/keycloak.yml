@@ -1,0 +1,88 @@
+---
+# Install & configure Keycloak (binary + config)
+
+# -------------------------------------------------------------------
+# Ensure /opt exists
+# -------------------------------------------------------------------
+- name: Ensure /opt exists
+  file:
+    path: /opt
+    state: directory
+    mode: "0755"
+
+# -------------------------------------------------------------------
+# Check if Keycloak already extracted
+# -------------------------------------------------------------------
+- name: Check if Keycloak version already extracted
+  stat:
+    path: "/opt/keycloak-{{ keycloak_version }}"
+  register: kc_version_dir
+
+# -------------------------------------------------------------------
+# Download Keycloak archive (ONLY if not extracted)
+# -------------------------------------------------------------------
+- name: Download Keycloak archive
+  get_url:
+    url: "{{ keycloak_download_url }}"
+    dest: "/tmp/keycloak-{{ keycloak_version }}.tar.gz"
+    mode: "0644"
+  when: not kc_version_dir.stat.exists
+
+# -------------------------------------------------------------------
+# Extract Keycloak (ONLY if not extracted)
+# -------------------------------------------------------------------
+- name: Extract Keycloak to /opt
+  unarchive:
+    src: "/tmp/keycloak-{{ keycloak_version }}.tar.gz"
+    dest: /opt/
+    remote_src: yes
+    owner: "{{ keycloak_user }}"
+    group: "{{ keycloak_group }}"
+  when: not kc_version_dir.stat.exists
+
+# -------------------------------------------------------------------
+# Handle existing /opt/keycloak path
+# -------------------------------------------------------------------
+- name: Check current /opt/keycloak path
+  stat:
+    path: "{{ keycloak_install_dir }}"
+  register: kc_path
+
+- name: Backup existing /opt/keycloak if it's a directory (not symlink)
+  command: mv {{ keycloak_install_dir }} {{ keycloak_install_dir }}.bak
+  when:
+    - kc_path.stat.exists
+    - kc_path.stat.isdir
+    - not kc_path.stat.islnk
+
+# -------------------------------------------------------------------
+# Symlink
+# -------------------------------------------------------------------
+- name: Create symlink /opt/keycloak -> versioned dir
+  file:
+    src: "/opt/keycloak-{{ keycloak_version }}"
+    dest: "{{ keycloak_install_dir }}"
+    state: link
+    force: yes
+
+# -------------------------------------------------------------------
+# Config directory
+# -------------------------------------------------------------------
+- name: Ensure Keycloak conf directory exists
+  file:
+    path: "{{ keycloak_install_dir }}/conf"
+    state: directory
+    owner: "{{ keycloak_user }}"
+    group: "{{ keycloak_group }}"
+    mode: "0755"
+
+# -------------------------------------------------------------------
+# Config file
+# -------------------------------------------------------------------
+- name: Render keycloak.conf
+  template:
+    src: keycloak.conf.j2
+    dest: "{{ keycloak_install_dir }}/conf/keycloak.conf"
+    owner: "{{ keycloak_user }}"
+    group: "{{ keycloak_group }}"
+    mode: "0644"

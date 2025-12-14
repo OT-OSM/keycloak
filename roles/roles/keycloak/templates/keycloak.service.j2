@@ -1,0 +1,19 @@
+[Unit]
+Description=Keycloak
+After=network.target postgresql.service
+Wants=postgresql.service
+
+[Service]
+Type=simple
+User={{ keycloak_user }}
+Group={{ keycloak_group }}
+
+Environment="KC_BOOTSTRAP_ADMIN_USERNAME={{ keycloak_admin_user }}"
+Environment="KC_BOOTSTRAP_ADMIN_PASSWORD={{ keycloak_admin_password }}"
+
+ExecStart={{ keycloak_install_dir }}/bin/kc.sh start
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
