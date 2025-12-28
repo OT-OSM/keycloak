@@ -5,12 +5,13 @@ db-username={{ keycloak_db_user }}
 db-password={{ keycloak_db_password }}
 
 # ---------------- HTTP ----------------
-http-enabled={{ (not keycloak_https_enabled) | lower }}
+http-enabled=true
 http-port={{ keycloak_http_port }}
 http-host=0.0.0.0
 
 # ---------------- HTTPS ----------------
-{% if keycloak_https_enabled %}
+{% if keycloak_https_enabled | bool %}
+https-enabled=true
 https-port={{ keycloak_https_port }}
 https-certificate-file={{ keycloak_tls_cert_file }}
 https-certificate-key-file={{ keycloak_tls_key_file }}

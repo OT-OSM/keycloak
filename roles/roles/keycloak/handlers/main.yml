@@ -1,14 +1,9 @@
-
+---
 - name: reload systemd
-  systemd:
+  ansible.builtin.systemd:
     daemon_reload: yes
 
-- name: restart postgresql
-  systemd:
-    name: postgresql
-    state: restarted
-
 - name: restart keycloak
-  systemd:
+  ansible.builtin.systemd:
     name: keycloak
     state: restarted

@@ -1,5 +1,4 @@
 # ---------------- PostgreSQL ----------------
-postgres_version: "14"
 postgres_port: 5432
 postgres_host: "localhost"
 
@@ -16,7 +15,16 @@ keycloak_archive_name: "keycloak-{{ keycloak_version }}.tar.gz"
 keycloak_download_url: >
   https://github.com/keycloak/keycloak/releases/download/{{ keycloak_version }}/{{ keycloak_archive_name }}
 
+# ---------------- Paths ----------------
+keycloak_base_dir: "/opt"
+keycloak_versions_dir: "{{ keycloak_base_dir }}"
 keycloak_install_dir: "/opt/keycloak"
+keycloak_tmp_dir: "/tmp"
+
+# ---------------- Database Control ----------------
+# DB provisioning should be external by default
+keycloak_manage_db: false
+
 
 # ---------------- Admin Bootstrap ----------------
 keycloak_admin_user: "admin"
@@ -46,3 +54,50 @@ keycloak_tls_key_file: ""
 # ---------------- Reverse Proxy ----------------
 # none | edge | reencrypt
 keycloak_proxy_mode: "none"
+
+# ---------------- Identity Providers (Optional) ----------------
+# Enable external authentication providers via realm import
+# Supported: OIDC, LDAP, SAML
+# All providers are disabled by default
+
+keycloak_identity_providers:
+  oidc: false
+  ldap: false
+  saml: false
+
+# ---------------- OIDC Identity Providers ----------------
+# Example: Google, Azure AD, Keycloak Broker, etc.
+# Used only if keycloak_identity_providers.oidc = true
+
+keycloak_oidc_providers: []
+# Example:
+# keycloak_oidc_providers:
+#   - alias: "google"
+#     display_name: "Google Login"
+#     issuer: "https://accounts.google.com"
+#     client_id: "xxxxx"
+#     client_secret: "yyyyy"
+#     default_scopes: "openid profile email"
+
+# ---------------- LDAP Identity Providers ----------------
+# Used only if keycloak_identity_providers.ldap = true
+
+keycloak_ldap_providers: []
+# Example:
+# keycloak_ldap_providers:
+#   - name: "corp-ldap"
+#     connection_url: "ldap://ldap.example.com"
+#     users_dn: "ou=users,dc=example,dc=com"
+#     bind_dn: "cn=admin,dc=example,dc=com"
+#     bind_credential: "ldap_password"
+
+# ---------------- SAML Identity Providers ----------------
+# Used only if keycloak_identity_providers.saml = true
+
+keycloak_saml_providers: []
+# Example:
+# keycloak_saml_providers:
+#   - alias: "corp-saml"
+#     entity_id: "https://idp.example.com/entity"
+#     single_sign_on_service_url: "https://idp.example.com/sso"
+#     signing_certificate: "/etc/keycloak/saml/idp.crt"
