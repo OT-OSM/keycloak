@@ -1,0 +1,59 @@
+{
+  "realm": "external-idp-test",
+  "enabled": true,
+
+  {% set idps = [] %}
+
+  {% if keycloak_identity_providers.oidc %}
+  {% for oidc in keycloak_oidc_providers %}
+  {% set _ = idps.append({
+    "alias": oidc.alias,
+    "providerId": "oidc",
+    "enabled": true,
+    "trustEmail": true,
+    "storeToken": true,
+    "addReadTokenRoleOnCreate": true,
+    "firstBrokerLoginFlowAlias": "first broker login",
+    "config": {
+      "clientId": oidc.client_id,
+      "clientSecret": oidc.client_secret,
+      "issuer": oidc.issuer,
+      "defaultScope": oidc.default_scopes | default("openid profile email"),
+      "useJwksUrl": "true"
+    }
+  }) %}
+  {% endfor %}
+  {% endif %}
+
+  {% if keycloak_identity_providers.ldap %}
+  {% for ldap in keycloak_ldap_providers %}
+  {% set _ = idps.append({
+    "alias": ldap.name,
+    "providerId": "ldap",
+    "enabled": true,
+    "config": {
+      "connectionUrl": ldap.connection_url,
+      "usersDn": ldap.users_dn,
+      "bindDn": ldap.bind_dn,
+      "bindCredential": ldap.bind_credential
+    }
+  }) %}
+  {% endfor %}
+  {% endif %}
+
+  {% if keycloak_identity_providers.saml %}
+  {% for saml in keycloak_saml_providers %}
+  {% set _ = idps.append({
+    "alias": saml.alias,
+    "providerId": "saml",
+    "enabled": true,
+    "config": {
+      "entityId": saml.entity_id,
+      "singleSignOnServiceUrl": saml.single_sign_on_service_url
+    }
+  }) %}
+  {% endfor %}
+  {% endif %}
+
+  "identityProviders": {{ idps | to_json }}
+}

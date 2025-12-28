@@ -1,0 +1,29 @@
+galaxy_info:
+  role_name: keycloak
+  author: devops
+  description: >
+    Install and configure modern Keycloak (17+ Quarkus-based)
+    with PostgreSQL backend on supported Linux platforms.
+  license: MIT
+
+  min_ansible_version: "2.14"
+
+  platforms:
+    - name: Ubuntu
+      versions:
+        - "20.04"
+        - "22.04"
+        - "24.04"
+
+  galaxy_tags:
+    - keycloak
+    - iam
+    - sso
+    - oidc
+    - oauth2
+    - security
+    - postgresql
+    - quarkus
+    - devops
+
+dependencies: []
