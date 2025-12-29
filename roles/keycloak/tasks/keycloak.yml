@@ -138,7 +138,7 @@
 # -------------------------------------------------------------------
 # Realm import for identity providers
 # -------------------------------------------------------------------
-- name: Render realm import file for identity providers
+- name: Render realm import file (identity providers + access control)
   ansible.builtin.template:
     src: realm-import.json.j2
     dest: "{{ keycloak_install_dir }}/data/import/realm-import.json"
@@ -149,3 +149,4 @@
     - keycloak_identity_providers.oidc
       or keycloak_identity_providers.ldap
       or keycloak_identity_providers.saml
+      or keycloak_access_control_enabled
