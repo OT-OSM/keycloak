@@ -1,0 +1,27 @@
+[Unit]
+Description=Keycloak
+After=network.target
+Wants=network.target
+
+[Service]
+Type=simple
+User={{ keycloak_user }}
+Group={{ keycloak_group }}
+
+# Load environment variables securely
+Environment="KC_NODE_NAME={{ keycloak_node_name }}"
+
+
+{% set idp_enabled = keycloak_identity_providers.oidc
+   or keycloak_identity_providers.ldap
+   or keycloak_identity_providers.saml %}
+
+# Keycloak Quarkus requires optimized mode for systemd
+ExecStart={{ keycloak_install_dir }}/bin/kc.sh start --optimized{% if idp_enabled %} --import-realm{% endif %}
+
+Restart=on-failure
+RestartSec=10
+TimeoutStartSec=300
+
+[Install]
+WantedBy=multi-user.target
