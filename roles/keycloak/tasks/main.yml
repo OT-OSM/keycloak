@@ -10,5 +10,8 @@
 - name: Configure and start Keycloak service
   ansible.builtin.import_tasks: services.yml
 
+- import_tasks: realm.yml
+  when: keycloak_bootstrap_admin | bool
+
 - name: Verify Keycloak availability
   ansible.builtin.import_tasks: verify.yml

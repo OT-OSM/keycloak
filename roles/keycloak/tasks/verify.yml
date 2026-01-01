@@ -3,11 +3,10 @@
 # Verify Keycloak service is running
 # -------------------------------------------------------------------
 - name: Verify Keycloak service is active
-  ansible.builtin.command:
-    cmd: systemctl is-active keycloak
-  register: kc_service_status
+  ansible.builtin.command: systemctl is-active keycloak
+  register: keycloak_status
   changed_when: false
-  failed_when: kc_service_status.stdout != "active"
+  failed_when: keycloak_status.stdout not in ["active", "activating"]
 
 # -------------------------------------------------------------------
 # Informational: HTTPS configuration status
@@ -21,3 +20,15 @@
         else 'DISABLED'
       }}.
       Runtime TLS binding depends on certificate validation.
+
+# -------------------------------------------------------------------
+# Observability Configuration
+# -------------------------------------------------------------------
+
+- name: Validate observability configuration
+  ansible.builtin.assert:
+    that:
+      - keycloak_log_format in ['plain', 'json']
+    fail_msg: "Invalid log format. Supported: plain | json"
+  when: keycloak_observability_enabled | bool
+

@@ -23,16 +23,7 @@ keycloak_tmp_dir: "/tmp"
 
 # ---------------- Database Control ----------------
 # DB provisioning should be external by default
-keycloak_manage_db: false
-
-
-# ---------------- Admin Bootstrap ----------------
-keycloak_admin_user: "admin"
-keycloak_admin_password: "change_me"
-
-# ---------------- Network ----------------
-keycloak_http_port: 8080
-keycloak_hostname: "localhost"
+keycloak_manage_db: true
 
 # ---------------- Java ----------------
 # Keycloak requires Java 17+
@@ -41,6 +32,19 @@ java_version: "21"
 # ---------------- System User ----------------
 keycloak_user: "keycloak"
 keycloak_group: "keycloak"
+
+# ---------------- Network ----------------
+keycloak_http_port: 8080
+
+# ---------------- Realm Security ----------------
+keycloak_realm_ssl_required: "NONE"   # NONE | EXTERNAL | ALL
+
+# Public identity (DNS preferred, IP allowed for demo)
+keycloak_public_hostname: ""
+
+# true  = behind reverse proxy (Nginx / ALB)
+# false = direct access
+keycloak_use_reverse_proxy: false
 
 # ---------------- TLS / HTTPS ----------------
 # Enable HTTPS directly in Keycloak
@@ -53,7 +57,7 @@ keycloak_tls_key_file: ""
 
 # ---------------- Reverse Proxy ----------------
 # none | edge | reencrypt
-keycloak_proxy_mode: "none"
+keycloak_proxy_mode: "edge"
 
 # ---------------- Identity Providers (Optional) ----------------
 # Enable external authentication providers via realm import
@@ -101,3 +105,21 @@ keycloak_saml_providers: []
 #     entity_id: "https://idp.example.com/entity"
 #     single_sign_on_service_url: "https://idp.example.com/sso"
 #     signing_certificate: "/etc/keycloak/saml/idp.crt"
+
+# ---------------- Observability ----------------
+keycloak_observability_enabled: false
+
+keycloak_management_port: 9000
+
+keycloak_health_enabled: true
+keycloak_metrics_enabled: true
+
+keycloak_log_level: INFO
+keycloak_log_format: json   # or json
+
+# ---------------- Admin Bootstrap Control ----------------
+keycloak_bootstrap_admin: true
+
+# Default admin credentials (first run only)
+keycloak_admin_user: "admin"
+keycloak_admin_password: "Admin@123"

@@ -8,15 +8,12 @@ Type=simple
 User={{ keycloak_user }}
 Group={{ keycloak_group }}
 
-# Load environment variables securely
 EnvironmentFile=/etc/keycloak/keycloak.env
 
-{% set idp_enabled = keycloak_identity_providers.oidc
-   or keycloak_identity_providers.ldap
-   or keycloak_identity_providers.saml %}
-
-# Keycloak Quarkus requires optimized mode for systemd
-ExecStart={{ keycloak_install_dir }}/bin/kc.sh start --optimized{% if idp_enabled %} --import-realm{% endif %}
+ExecStart=/opt/keycloak/bin/kc.sh start \
+  --http-enabled=true \
+  --http-port={{ keycloak_http_port }} \
+  --http-host=0.0.0.0
 
 Restart=on-failure
 RestartSec=10
