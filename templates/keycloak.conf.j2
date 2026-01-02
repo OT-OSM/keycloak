@@ -1,6 +1,6 @@
 # ---------------- DATABASE ----------------
 db=postgres
-db-url=jdbc:postgresql://{{ postgres_host }}:{{ postgres_port }}/{{ keycloak_db_name }}
+db-url=jdbc:postgresql://{{ keycloak_db_host }}:{{ keycloak_db_port }}/{{ keycloak_db_name }}
 db-username={{ keycloak_db_user }}
 db-password={{ keycloak_db_password }}
 
