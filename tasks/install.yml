@@ -14,7 +14,7 @@
     name: "{{ keycloak_user }}"
     group: "{{ keycloak_group }}"
     system: yes
-    home: "{{ keycloak_install_dir }}"
+    home: "{{ keycloak_base_dir }}"
     shell: /bin/bash
 
 # -------------------------------------------------------------------
@@ -26,12 +26,20 @@
     state: directory
     mode: "0755"
 
+- name: Ensure Keycloak versions directory exists
+  ansible.builtin.file:
+    path: "{{ keycloak_versions_dir }}"
+    state: directory
+    owner: "{{ keycloak_user }}"
+    group: "{{ keycloak_group }}"
+    mode: "0755"
+
 # -------------------------------------------------------------------
 # Check if Keycloak version already extracted
 # -------------------------------------------------------------------
 - name: Check if Keycloak version already extracted
   ansible.builtin.stat:
-    path: "{{ keycloak_versions_dir }}/keycloak-{{ keycloak_version }}"
+    path: "{{ keycloak_version_dir }}"
   register: kc_version_dir
 
 # -------------------------------------------------------------------
@@ -77,7 +85,7 @@
 # -------------------------------------------------------------------
 - name: Create Keycloak symlink to versioned directory
   ansible.builtin.file:
-    src: "{{ keycloak_versions_dir }}/keycloak-{{ keycloak_version }}"
+    src: "{{ keycloak_version_dir }}"
     dest: "{{ keycloak_install_dir }}"
     state: link
     force: yes
@@ -109,10 +117,10 @@
 # -------------------------------------------------------------------
 - name: Build Keycloak (Quarkus optimized)
   ansible.builtin.command:
-    cmd: "{{ keycloak_versions_dir }}/keycloak-{{ keycloak_version }}/bin/kc.sh build"
+    cmd: "{{ keycloak_version_dir }}/bin/kc.sh build"
   become_user: "{{ keycloak_user }}"
   args:
-    chdir: "{{ keycloak_versions_dir }}/keycloak-{{ keycloak_version }}"
+    chdir: "{{ keycloak_version_dir }}"
 
 # -------------------------------------------------------------------
 # Ensure /etc/keycloak config directory exists

@@ -19,10 +19,12 @@ keycloak_download_url: >
   https://github.com/keycloak/keycloak/releases/download/{{ keycloak_version }}/{{ keycloak_archive_name }}
 
 # ---------------- Paths ----------------
-keycloak_base_dir: "/opt"
-keycloak_versions_dir: "{{ keycloak_base_dir }}"
-keycloak_install_dir: "/opt/keycloak"
+keycloak_base_dir: "/opt/keycloak"
+keycloak_versions_dir: "{{ keycloak_base_dir }}/versions"
+keycloak_install_dir: "{{ keycloak_base_dir }}/current"
 keycloak_tmp_dir: "/tmp"
+
+keycloak_version_dir: "{{ keycloak_versions_dir }}/keycloak-{{ keycloak_version }}"
 
 # ---------------- Database Control ----------------
 # DB provisioning should be external by default

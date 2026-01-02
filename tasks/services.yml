@@ -5,12 +5,10 @@
     owner: root
     group: root
     mode: "0644"
-  notify:
-    - systemd daemon reload
-    - restart keycloak
 
-- name: Flush systemd handlers before starting service
-  ansible.builtin.meta: flush_handlers
+- name: Reload systemd daemon
+  ansible.builtin.systemd:
+    daemon_reload: true
 
 - name: Enable and start Keycloak service
   ansible.builtin.systemd:
