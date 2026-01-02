@@ -1,17 +1,24 @@
 [Unit]
-Description=The Keycloak Server
-After=syslog.target network.target
-Before=httpd.service
+Description=Keycloak
+After=network.target
+Wants=network.target
 
 [Service]
-Environment=LAUNCH_JBOSS_IN_BACKGROUND=1
-EnvironmentFile=/etc/keycloak/keycloak.conf
-User=keycloak
-Group=keycloak
-LimitNOFILE=102642
-PIDFile=/var/run/keycloak/keycloak.pid
-ExecStart=/opt/keycloak/bin/launch.sh $WILDFLY_MODE $WILDFLY_CONFIG $WILDFLY_BIND
-StandardOutput=null
+Type=simple
+User={{ keycloak_user }}
+Group={{ keycloak_group }}
+
+# Load environment variables securely
+EnvironmentFile={{ keycloak_env_file }}
+
+ExecStart=/opt/keycloak/bin/kc.sh start \
+  --http-enabled=true \
+  --http-port={{ keycloak_http_port }} \
+  --http-host=0.0.0.0
+
+Restart=on-failure
+RestartSec=10
+TimeoutStartSec=300
 
 [Install]
 WantedBy=multi-user.target

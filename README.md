@@ -1,188 +1,161 @@
-# **Keycloak Ansible Role**
+# Keycloak Ansible Role
 
 ---
 
-## **Author Metadata**
+## Table of Contents
 
-| Created by   | Created on | Version | Last Updated On |
-| ------------ | ---------- | ------- | --------------- |
-| Divya Mishra | 14-12-2025 | V1      | 14-12-2025      |
-
----
-
-## **Table of Contents**
-
-1. [Introduction](#1-introduction)
-2. [Objectives](#2-objectives)
-3. [Supported Platforms](#3-supported-platforms)
-4. [Prerequisites](#4-prerequisites)
-5. [Directory Structure](#5-directory-structure)
-6. [Implementation Details](#6-implementation-details)
-
-   * [6.1 OS & Java Compatibility Validation](#61-os--java-compatibility-validation)
-   * [6.2 Parameterized Keycloak Installation](#62-parameterized-keycloak-installation)
-   * [6.3 Database Configuration (PostgreSQL)](#63-database-configuration-postgresql)
-   * [6.4 TLS / HTTPS & Reverse Proxy Readiness](#64-tls--https--reverse-proxy-readiness)
-7. [Execution Using Ansible](#7-execution-using-ansible)
-8. [Validation & Health Checks](#8-validation--health-checks)
-9. [Troubleshooting](#9-troubleshooting)
-10. [Best Practices Implemented](#10-best-practices-implemented)
+1. [Overview](#1-overview)
+2. [Supported Operating Systems](#2-supported-operating-systems)
+3. [Prerequisites & Known Limitations](#3-prerequisites--known-limitations)
+4. [Role Structure](#4-role-structure)
+5. [Configuration Overview](#5-configuration-overview)
+6. [Installation Flow](#6-installation-flow)
+7. [Running the Playbook](#7-running-the-playbook)
+8. [Validation & Testing](#8-validation--testing)
+9. [Best Practices Followed](#9-best-practices-followed)
+10. [Troubleshooting](#10-troubleshooting)
 11. [Conclusion](#11-conclusion)
 12. [References](#12-references)
+13. [Author](#13-author)
 
 ---
 
-## **1. Introduction**
+## 1. Overview
 
-Keycloak is an open-source **Identity and Access Management (IAM)** solution providing authentication, authorization, and identity federation.
+Keycloak is an open-source **Identity and Access Management (IAM)** solution used for securing applications and services.
 
-This Ansible role automates a **modern, production-aligned Keycloak deployment**, focusing on:
+It provides:
 
-* Latest Keycloak (Quarkus-based) releases
-* Updated OS and Java compatibility
-* Secure, systemd-managed execution
-* TLS / HTTPS and reverse-proxy readiness
+* Single Sign-On (SSO)
+* User and role management
+* Identity federation (OIDC, LDAP, SAML)
+* Authentication and authorization
+* Support for standalone and clustered (HA) deployments
 
-Official documentation: [https://www.keycloak.org/documentation](https://www.keycloak.org/documentation)
-
----
-
-## **2. Objectives**
-
-* Validate support for **latest Keycloak versions**
-* Remove dependency on **legacy OS and Java runtimes**
-* Parameterize Keycloak version and archive URL
-* Enforce **Java 17+**
-* Enable **TLS / HTTPS and reverse proxy support as options**
-* Ensure **production mode execution** (`kc.sh start`)
+Official documentation:
+[https://www.keycloak.org/documentation](https://www.keycloak.org/documentation)
 
 ---
 
-## **3. Supported Platforms**
+## 2. Supported Operating Systems
 
-### Operating Systems
+| OS Family    | Versions               |
+| ------------ | ---------------------- |
+| Debian       | Ubuntu 20+, Debian 10+ |
+| RedHat       | RHEL 8+, CentOS 8+     |
+| Amazon Linux | Amazon Linux 2         |
 
-| OS Family       | Versions            |
-| --------------- | ------------------- |
-| Debian / Ubuntu | 20.04, 22.04, 24.04 |
-
-> Legacy platforms (Ubuntu 16/18, CentOS 6/7) are **intentionally not supported**.
-
-### Java Runtime
-
-| Runtime | Version |
-| ------- | ------- |
-| OpenJDK | 17+     |
+OS detection is handled using `ansible_os_family`.
 
 ---
 
-## **4. Prerequisites**
+## 3. Prerequisites & Known Limitations
 
 ### System Requirements
 
-| Component | Requirement          |
-| --------- | -------------------- |
-| OS        | Ubuntu 20.04 / 22.04 |
-| Java      | OpenJDK 17+          |
-| RAM       | 4 GB minimum         |
-| CPU       | 2 vCPU               |
-| Disk      | 5 GB free            |
-| Access    | SSH + sudo           |
+| Requirement | Description                 |
+| ----------- | --------------------------- |
+| RAM         | 4 GB (HA: 6–8 GB preferred) |
+| CPU         | 2 vCPU or more              |
+| Disk        | 30 GB                       |
+| Java        | Java 17+ (Java 21 tested)   |
 
 ---
 
-## **5. Directory Structure**
+### Python & Ansible Requirements
+
+| Package | Purpose            |
+| ------- | ------------------ |
+| ansible | Playbook execution |
+
+Install Ansible:
+
+```bash
+pip install ansible
+```
+
+### Environment Setup (Recommended)
+
+```bash
+python3 -m venv ansible-venv
+source ansible-venv/bin/activate
+pip install ansible
+```
+
+---
+
+### Known Platform Limitations
+
+* This role **does not provision databases** (external DB required)
+* HA requires **multiple nodes + external DB**
+* TLS certificates must be **pre-created**
+* Realm import executes **only at startup**
+
+These are **Keycloak platform constraints**, not role limitations.
+
+---
+
+## 4. Role Structure
 
 ```
 roles/
 └── keycloak/
     ├── defaults/main.yml
+    ├── vars/main.yml
     ├── handlers/main.yml
     ├── tasks/
-    │   ├── prerequisites.yml
-    │   ├── postgresql.yml
+    │   ├── main.yml
     │   ├── keycloak.yml
     │   ├── services.yml
     │   └── verify.yml
     ├── templates/
     │   ├── keycloak.conf.j2
-    │   └── keycloak.service.j2
-    └── vars/main.yml
+    │   ├── keycloak.env.j2
+    │   ├── keycloak.service.j2
+    │   └── realm-import.json.j2
+    └── meta/main.yml
+
+inventory.ini
+playbook.yml
+group_vars/
 ```
 
 ---
 
-## **6. Implementation Details**
+## 5. Configuration Overview
 
-### **6.1 OS & Java Compatibility Validation**
+All Keycloak behavior is controlled via variables defined in
+`roles/keycloak/defaults/main.yml` and overridden via `group_vars`.
 
-```yaml
-assert:
-  - ansible_distribution == "Ubuntu"
-  - ansible_distribution_major_version | int >= 20
-  - java_version | int >= 17
-```
-
----
-
-### **6.2 Parameterized Keycloak Installation**
-
-```yaml
-keycloak_version: "26.0.7"
-keycloak_archive_url: "https://github.com/keycloak/keycloak/releases/download/{{ keycloak_version }}/keycloak-{{ keycloak_version }}.tar.gz"
-keycloak_install_dir: "/opt/keycloak"
-```
-
-Installation layout:
-
-```
-/opt/keycloak-26.0.7
-/opt/keycloak → symlink
-```
+| Configuration Area | Description                              |
+| ------------------ | ---------------------------------------- |
+| Core Runtime       | Keycloak version, paths, ports, hostname |
+| Database           | External PostgreSQL configuration        |
+| TLS / HTTPS        | Native HTTPS enablement via certificates |
+| Reverse Proxy      | Edge / re-encrypt proxy modes            |
+| Identity Providers | OIDC, LDAP, SAML via realm import        |
+| High Availability  | Clustering, JGroups, cache stack         |
+| Security           | Admin bootstrap and secure env handling  |
 
 ---
 
-### **6.3 Database Configuration (PostgreSQL)**
+## 6. Installation Flow
 
-```yaml
-postgres_host: "localhost"
-postgres_port: 5432
-keycloak_db_name: "keycloak"
-keycloak_db_user: "keycloak"
-keycloak_db_password: "StrongPassword"
-```
+High-level execution flow:
 
-Verification:
-
-```bash
-sudo journalctl -u keycloak | grep "Profile prod activated"
-```
+1. Validate OS compatibility
+2. Install Java runtime
+3. Download and extract Keycloak binary
+4. Render `keycloak.conf`
+5. Render environment file
+6. Build Quarkus optimized runtime
+7. Configure systemd service
+8. Start and validate Keycloak service
+9. Import realm (SSO providers if enabled)
 
 ---
 
-### **6.4 TLS / HTTPS & Reverse Proxy Readiness**
-
-#### TLS / HTTPS (Optional)
-
-```yaml
-keycloak_https_enabled: false
-keycloak_https_port: 8443
-keycloak_tls_cert_file: /etc/keycloak/tls/tls.crt
-keycloak_tls_key_file: /etc/keycloak/tls/tls.key
-```
-
-> Certificate management is intentionally external.
-
-#### Reverse Proxy Support
-
-```yaml
-keycloak_proxy_mode: edge
-keycloak_hostname: auth.example.com
-hostname-strict=false
-```
----
-
-## **7. Execution Using Ansible**
+## 7. Running the Playbook
 
 ```bash
 ansible-playbook -i inventory.ini playbook.yml
@@ -196,70 +169,100 @@ failed=0
 
 ---
 
-## **8. Validation & Health Checks**
+## 8. Validation & Testing
+
+### Service Status
 
 ```bash
 sudo systemctl status keycloak
 ```
 
-```bash
-sudo ss -lntp | grep 8080
-```
+### Port Validation
 
 ```bash
-curl -I http://localhost:8080
+ss -lntp | grep 8080
+ss -lntp | grep 8443
 ```
 
-Admin Console:
+### Browser Access
 
 ```
-https://<hostname>:8443/admin/master/console
+http://<SERVER_IP>:8080
+https://<SERVER_IP>:8443
 ```
 
 ---
 
-## **9. Troubleshooting**
+### HA Validation (Optional)
 
-| Issue           | Cause                  | Resolution        |
-| --------------- | ---------------------- | ----------------- |
-| HTTPS required  | Prod mode enabled      | Enable TLS        |
-| Redirect loop   | Proxy misconfiguration | Verify proxy mode |
-| DB auth failure | Auth mismatch          | Check DB config   |
-| Restart loop    | Invalid config         | Review config     |
+```bash
+cat /opt/keycloak/conf/keycloak.conf | grep -E "cache|cluster|jgroups|node-name"
+```
 
----
+Expected entries:
 
-## **10. Best Practices Implemented**
-
-| Practice           | Description            |
-| ------------------ | ---------------------- |
-| Non-root execution | `keycloak` system user |
-| Idempotent design  | Safe re-runs           |
-| Version pinning    | Controlled upgrades    |
-| Modern runtime     | Java 17+, Quarkus      |
-| Secure defaults    | No dev mode            |
-| Modular TLS        | Optional               |
-| Proxy awareness    | Production-ready       |
+```
+cache=ispn
+cache-stack=tcp
+cluster-name=keycloak-cluster
+```
 
 ---
 
-## **11. Conclusion**
+## 9. Best Practices Followed
 
-This Ansible role delivers a **clean, reproducible, production-ready** Keycloak deployment that:
-
-* Supports **latest Keycloak releases**
-* Enforces **modern OS & Java compatibility**
-* Enables **TLS / HTTPS and reverse proxy support as options**
+| Practice               | Description                   |
+| ---------------------- | ----------------------------- |
+| FQMN                   | ansible.builtin usage         |
+| External DB            | Required for prod & HA        |
+| TLS via config         | No runtime CLI hacks          |
+| Variable-driven        | No hardcoded values           |
+| HA validation          | Prevents invalid setups       |
+| Idempotency            | Safe re-runs                  |
+| Separation of concerns | Install, config, verify split |
 
 ---
 
-## **12. References**
+## 10. Troubleshooting
 
-| Reference                                                                                      | Description    |
-| ---------------------------------------------------------------------------------------------- | -------------- |
-| [https://www.keycloak.org/documentation](https://www.keycloak.org/documentation)               | Official Docs  |
-| [https://www.keycloak.org/server/configuration](https://www.keycloak.org/server/configuration) | Quarkus Config |
-| [https://www.keycloak.org/server/reverseproxy](https://www.keycloak.org/server/reverseproxy)   | Reverse Proxy  |
-| [https://github.com/keycloak/keycloak/releases](https://github.com/keycloak/keycloak/releases) | Releases       |
+| Issue                 | Fix                               |
+| --------------------- | --------------------------------- |
+| Keycloak not starting | `journalctl -u keycloak -n 50`    |
+| HTTPS not binding     | Verify cert paths & permissions   |
+| HA assertion failure  | Check external DB & JGroups hosts |
+| SSO not visible       | Validate realm-import.json        |
+| Port conflict         | `ss -lntp`                        |
+
+---
+
+## 11. Conclusion
+
+This role provides a **production-ready, secure, and HA-aware** Keycloak deployment.
+
+It enables teams to:
+
+* Standardize identity infrastructure
+* Enable SSO declaratively
+* Scale horizontally using HA patterns
+* Operate securely with TLS and reverse proxies
+
+---
+
+## 12. References
+
+| Purpose                  | Link                                                                                                               |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------ |
+| Keycloak Role Repository | [https://github.com/OT-OSM/keycloak](https://github.com/OT-OSM/keycloak)                                           |
+| Keycloak Documentation   | [https://www.keycloak.org/documentation](https://www.keycloak.org/documentation)                                   |
+| Keycloak HA Guide        | [https://www.keycloak.org/high-availability/introduction](https://www.keycloak.org/high-availability/introduction) |
+| Ansible Documentation    | [https://docs.ansible.com](https://docs.ansible.com)                                                               |
+
+---
+
+## 13. Author
+
+**Author:** Divya Mishra
+
+**Last Updated:** 29-Dec-2025
 
 ---

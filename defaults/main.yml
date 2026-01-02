@@ -1,4 +1,145 @@
----
-keycloak_version: 8.0.1
-username: Root
-password: R@@t123
+# ---------------- PostgreSQL ----------------
+keycloak_db_engine: "postgres"
+keycloak_db_port: 5432
+keycloak_db_host: "localhost"
+keycloak_db_name: "keycloak"
+keycloak_db_user: "keycloak"
+keycloak_db_password: "change_me"
+
+# ---------------- Keycloak Versioning ----------------
+# Keycloak 17+ (Quarkus-based). Tested with 26.x
+keycloak_version: "26.0.7"
+
+keycloak_archive_name: "keycloak-{{ keycloak_version }}.tar.gz"
+
+keycloak_download_url: >
+  https://github.com/keycloak/keycloak/releases/download/{{ keycloak_version }}/{{ keycloak_archive_name }}
+
+# ---------------- Paths ----------------
+keycloak_base_dir: "/opt/keycloak"
+keycloak_versions_dir: "{{ keycloak_base_dir }}/versions"
+keycloak_install_dir: "{{ keycloak_base_dir }}/current"
+keycloak_tmp_dir: "/tmp"
+
+keycloak_release_dir: "{{ keycloak_versions_dir }}/keycloak-{{ keycloak_version }}"
+
+# ---------------- Admin Bootstrap ----------------
+keycloak_admin_user: "admin"
+keycloak_admin_password: "change_me"
+
+# ---------------- Network ----------------
+keycloak_http_port: 8080
+keycloak_hostname: "3.7.55.175"
+
+# ---------------- Service / Runtime ----------------
+keycloak_env_file: /etc/keycloak/keycloak.env
+
+# ---------------- Java ----------------
+# Keycloak requires Java 17+
+java_version: "21"
+
+# ---------------- System User ----------------
+keycloak_user: "keycloak"
+keycloak_group: "keycloak"
+
+# ---------------- TLS / HTTPS ----------------
+# Enable HTTPS directly in Keycloak
+keycloak_https_enabled: false
+
+# Used only if keycloak_https_enabled = true
+keycloak_https_port: 8443
+keycloak_tls_cert_file: ""
+keycloak_tls_key_file: ""
+
+# ---------------- Reverse Proxy ----------------
+# none | edge | reencrypt
+keycloak_proxy_mode: "none"
+
+# ---------------- Identity Providers (Optional) ----------------
+# Enable external authentication providers via realm import
+# Supported: OIDC, LDAP, SAML
+# All providers are disabled by default
+
+keycloak_identity_providers:
+  oidc: false
+  ldap: false
+  saml: false
+
+# ---------------- OIDC Identity Providers ----------------
+# Example: Google, Azure AD, Keycloak Broker, etc.
+# Used only if keycloak_identity_providers.oidc = true
+
+keycloak_oidc_providers: []
+# Example:
+# keycloak_oidc_providers:
+#   - alias: "google"
+#     display_name: "Google Login"
+#     issuer: "https://accounts.google.com"
+#     client_id: "xxxxx"
+#     client_secret: "yyyyy"
+#     default_scopes: "openid profile email"
+
+# ---------------- LDAP Identity Providers ----------------
+# Used only if keycloak_identity_providers.ldap = true
+
+keycloak_ldap_providers: []
+# Example:
+# keycloak_ldap_providers:
+#   - name: "corp-ldap"
+#     connection_url: "ldap://ldap.example.com"
+#     users_dn: "ou=users,dc=example,dc=com"
+#     bind_dn: "cn=admin,dc=example,dc=com"
+#     bind_credential: "ldap_password"
+
+# ---------------- SAML Identity Providers ----------------
+# Used only if keycloak_identity_providers.saml = true
+
+keycloak_saml_providers: []
+# Example:
+# keycloak_saml_providers:
+#   - alias: "corp-saml"
+#     entity_id: "https://idp.example.com/entity"
+#     single_sign_on_service_url: "https://idp.example.com/sso"
+#     signing_certificate: "/etc/keycloak/saml/idp.crt"
+
+
+# ---------------- Access Control ----------------
+# Baseline access control support using realm import
+# This creates realm roles and groups, and maps roles to groups.
+# User assignment is expected to be managed via Keycloak UI or IdP claims.
+
+# Enable baseline access control bootstrap
+keycloak_access_control_enabled: false
+
+# Realm name where roles and groups will be created
+keycloak_realm_name: "master"
+
+# ---------------- Realm Roles ----------------
+# Default realm-level roles to create
+
+keycloak_default_roles:
+  - admin
+  - developer
+  - viewer
+
+# ---------------- Groups ----------------
+# Default groups to create inside the realm
+
+keycloak_default_groups:
+  - platform-admins
+  - devops
+  - developers
+  - viewers
+
+# ---------------- Group → Role Mapping ----------------
+# Maps realm roles to groups
+
+keycloak_group_role_mappings:
+  platform-admins:
+    - admin
+  devops:
+    - admin
+  developers:
+    - developer
+  viewers:
+    - viewer
