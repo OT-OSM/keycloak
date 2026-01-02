@@ -117,10 +117,10 @@
 # -------------------------------------------------------------------
 - name: Build Keycloak (Quarkus optimized)
   ansible.builtin.command:
-    cmd: "{{ keycloak_release_dir }}/bin/kc.sh build"
+    cmd: "{{ keycloak_install_dir }}/bin/kc.sh build"
   become_user: "{{ keycloak_user }}"
   args:
-    chdir: "{{ keycloak_release_dir }}"
+    chdir: "{{ keycloak_install_dir }}"
 
 # -------------------------------------------------------------------
 # Ensure /etc/keycloak config directory exists
