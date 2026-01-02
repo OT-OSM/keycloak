@@ -39,7 +39,7 @@
 # -------------------------------------------------------------------
 - name: Check if Keycloak version already extracted
   ansible.builtin.stat:
-    path: "{{ keycloak_version_dir }}"
+    path: "{{ keycloak_release_dir }}"
   register: kc_version_dir
 
 # -------------------------------------------------------------------
@@ -83,9 +83,9 @@
 # -------------------------------------------------------------------
 # Create symlink to current version
 # -------------------------------------------------------------------
-- name: Create Keycloak symlink to versioned directory
+- name: Create Keycloak symlink to current release
   ansible.builtin.file:
-    src: "{{ keycloak_version_dir }}"
+    src: "{{ keycloak_release_dir }}"
     dest: "{{ keycloak_install_dir }}"
     state: link
     force: yes
@@ -117,10 +117,10 @@
 # -------------------------------------------------------------------
 - name: Build Keycloak (Quarkus optimized)
   ansible.builtin.command:
-    cmd: "{{ keycloak_version_dir }}/bin/kc.sh build"
+    cmd: "{{ keycloak_release_dir }}/bin/kc.sh build"
   become_user: "{{ keycloak_user }}"
   args:
-    chdir: "{{ keycloak_version_dir }}"
+    chdir: "{{ keycloak_release_dir }}"
 
 # -------------------------------------------------------------------
 # Ensure /etc/keycloak config directory exists
@@ -134,7 +134,7 @@
     mode: "0755"
 
 # -------------------------------------------------------------------
-# Create Keycloak environment file (must exist BEFORE build)
+# Create Keycloak environment file
 # -------------------------------------------------------------------
 - name: Create Keycloak environment file
   ansible.builtin.template:
@@ -145,7 +145,7 @@
     mode: "0600"
 
 # -------------------------------------------------------------------
-# Realm import directory (optional)
+# Realm import (optional)
 # -------------------------------------------------------------------
 - name: Ensure realm import directory exists
   ansible.builtin.file:
@@ -159,9 +159,6 @@
       or keycloak_identity_providers.ldap
       or keycloak_identity_providers.saml
 
-# -------------------------------------------------------------------
-# Realm import for identity providers
-# -------------------------------------------------------------------
 - name: Render realm import file for identity providers
   ansible.builtin.template:
     src: realm-import.json.j2

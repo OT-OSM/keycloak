@@ -24,7 +24,7 @@ keycloak_versions_dir: "{{ keycloak_base_dir }}/versions"
 keycloak_install_dir: "{{ keycloak_base_dir }}/current"
 keycloak_tmp_dir: "/tmp"
 
-keycloak_version_dir: "{{ keycloak_versions_dir }}/keycloak-{{ keycloak_version }}"
+keycloak_release_dir: "{{ keycloak_versions_dir }}/keycloak-{{ keycloak_version }}"
 
 # ---------------- Database Control ----------------
 # DB provisioning should be external by default
