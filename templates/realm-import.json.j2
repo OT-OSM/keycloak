@@ -55,5 +55,26 @@
   {% endfor %}
   {% endif %}
 
-  "identityProviders": {{ idps | to_json }}
+  "identityProviders": {{ idps | to_json }},
+
+  "roles": {
+  "realm": [
+    {% for role in keycloak_default_roles %}
+    { "name": "{{ role }}" }{% if not loop.last %},{% endif %}
+    {% endfor %}
+   ]
+  },
+
+  "groups": [
+  {% for group in keycloak_default_groups %}
+  {
+    "name": "{{ group }}",
+    "realmRoles": [
+      {% for role in keycloak_group_role_mappings[group] %}
+      "{{ role }}"{% if not loop.last %},{% endif %}
+      {% endfor %}
+    ]
+  }{% if not loop.last %},{% endif %}
+  {% endfor %}
+  ]
 }

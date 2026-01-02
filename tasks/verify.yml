@@ -2,12 +2,13 @@
 # -------------------------------------------------------------------
 # Verify Keycloak service is running
 # -------------------------------------------------------------------
-- name: Verify Keycloak service is active
-  ansible.builtin.command:
-    cmd: systemctl is-active keycloak
+- name: Wait for Keycloak service to become active
+  ansible.builtin.command: systemctl is-active keycloak
   register: kc_service_status
+  retries: 10
+  delay: 10
+  until: kc_service_status.stdout == "active"
   changed_when: false
-  failed_when: kc_service_status.stdout != "active"
 
 # -------------------------------------------------------------------
 # Informational: HTTPS configuration status
