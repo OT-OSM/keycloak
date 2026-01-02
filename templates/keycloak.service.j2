@@ -1,17 +1,26 @@
 [Unit]
-Description=The Keycloak Server
-After=syslog.target network.target
-Before=httpd.service
+Description=Keycloak
+After=network.target
+Wants=network.target
 
 [Service]
-Environment=LAUNCH_JBOSS_IN_BACKGROUND=1
-EnvironmentFile=/etc/keycloak/keycloak.conf
-User=keycloak
-Group=keycloak
-LimitNOFILE=102642
-PIDFile=/var/run/keycloak/keycloak.pid
-ExecStart=/opt/keycloak/bin/launch.sh $WILDFLY_MODE $WILDFLY_CONFIG $WILDFLY_BIND
-StandardOutput=null
+Type=simple
+User={{ keycloak_user }}
+Group={{ keycloak_group }}
+
+# Load environment variables securely
+EnvironmentFile={{ keycloak_env_file }}
+
+{% set idp_enabled = keycloak_identity_providers.oidc
+   or keycloak_identity_providers.ldap
+   or keycloak_identity_providers.saml %}
+
+# Keycloak Quarkus requires optimized mode for systemd
+ExecStart={{ keycloak_install_dir }}/bin/kc.sh start --optimized{% if idp_enabled %} --import-realm{% endif %}
+
+Restart=on-failure
+RestartSec=10
+TimeoutStartSec=300
 
 [Install]
 WantedBy=multi-user.target
