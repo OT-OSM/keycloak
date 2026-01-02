@@ -1,6 +1,0 @@
-
-- name: Deploy Keycloak
-  hosts: keycloak_servers
-  become: yes
-  roles:
-    - keycloak

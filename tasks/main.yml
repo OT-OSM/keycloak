@@ -1,111 +1,14 @@
----
-- name: Create keycloak directory
-  file:
-    path: /opt/keycloak
-    state: directory
+- name: Validate system & install prerequisites
+  ansible.builtin.import_tasks: prerequisites.yml
 
-- name: Download and Extract Keycloak Server
-  unarchive:
-     src: '{{ keycloak_url_location }}'
-     dest: /opt/keycloak
-     remote_src: yes
-     extra_opts: [--strip-components=1]
+- name: Configure database for Keycloak (optional)
+  ansible.builtin.import_tasks: postgresql.yml
 
-- name: Create group Keycloak
-  group:
-    name: keycloak
-    state: present
+- name: Install and configure Keycloak
+  ansible.builtin.import_tasks: keycloak.yml
 
-- name: Create user Keycloak
-  user:
-    name: keycloak
-    system: yes
-    groups: keycloak
-    home: /opt/keycloak
-    shell: /sbin/nologin
-    append: yes
+- name: Configure and start Keycloak service
+  ansible.builtin.import_tasks: services.yml
 
-- name: Change file ownership and group for keycloak
-  file:
-    path: /opt/keycloak
-    state: directory
-    owner: keycloak
-    group: keycloak
-    recurse: yes
-
-- name: Change file permissions of bin
-  file:
-    path: /opt/keycloak/bin
-    owner: keycloak
-    group: users
-    mode: '0751'
-
-- name: Creating Keycloak configuration directory
-  file:
-    path: /etc/keycloak
-    state: directory
-    mode: '0755'
-
-- name: Copy Keycloak configuration file
-  copy:
-    src: "{{ item.src }}"
-    dest: "{{ item.dest }}"
-    remote_src: yes
-    mode: preserve
-  with_items:
-    - { src: /opt/keycloak/docs/contrib/scripts/systemd/wildfly.conf,
-        dest: /etc/keycloak/keycloak.conf }
-    - { src: /opt/keycloak/docs/contrib/scripts/systemd/launch.sh,
-        dest: /opt/keycloak/bin/ }
-  become: true
-
-- name: Change file ownership of launch.sh
-  file:
-    path: /opt/keycloak/bin/launch.sh
-    owner: keycloak
-    group: keycloak
-    mode: 0755
-
-- name: Update the Keycloak installation path
-  replace:
-    path: /opt/keycloak/bin/launch.sh
-    regexp: 'WILDFLY_HOME=.*$'
-    replace: WILDFLY_HOME="/opt/keycloak"
-
-- name: Configure keycloak.service
-  template:
-      src: keycloak.service.j2
-      dest: /etc/systemd/system/keycloak.service
-  notify:
-   - Daemon Reload
-   - Start Keycloak
-
-- name: Trigger handlers immediately in case Jenkins was installed
-  meta: flush_handlers
-
-- name: Run a script to create the initial administrator account
-  command: '/opt/keycloak/bin/add-user-keycloak.sh -r master -u {{ username }} -p {{ password }}'
-  changed_when: true
-  notify:
-  - Restart Keycloak
-
-- name: Trigger handlers immediately in case Jenkins was installed
-  meta: flush_handlers
-
-- name: Set script location that authenticated session
-  set_fact:
-    keycloak_url: 'http://{{ ansible_default_ipv4.address }}:8080/auth'
-
-- name: Start an authenticated session by providing admin user credentials
-  raw: '/opt/keycloak/bin/kcadm.sh config credentials --server {{ keycloak_url }} --realm master --user {{ username }} --password {{ password }}'
-  args:
-    warn: false
-  retries: 3
-  delay: 3
-  register: result
-  until: result.rc == 0
-  changed_when: true
-
-- name: Disable SSL on master realm
-  raw: '/opt/keycloak/bin/kcadm.sh update realms/master -s sslRequired=NONE'
-  changed_when: true
+- name: Verify Keycloak availability
+  ansible.builtin.import_tasks: verify.yml
