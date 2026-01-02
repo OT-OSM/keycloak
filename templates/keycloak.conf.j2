@@ -1,0 +1,29 @@
+# ---------------- DATABASE ----------------
+db=postgres
+db-url=jdbc:postgresql://{{ postgres_host }}:{{ postgres_port }}/{{ keycloak_db_name }}
+db-username={{ keycloak_db_user }}
+db-password={{ keycloak_db_password }}
+
+# ---------------- HTTP ----------------
+http-enabled=true
+http-port={{ keycloak_http_port }}
+http-host=0.0.0.0
+
+# ---------------- HTTPS ----------------
+{% if keycloak_https_enabled | bool %}
+https-enabled=true
+https-port={{ keycloak_https_port }}
+https-certificate-file={{ keycloak_tls_cert_file }}
+https-certificate-key-file={{ keycloak_tls_key_file }}
+{% endif %}
+
+# ---------------- HOSTNAME ----------------
+hostname={{ keycloak_hostname }}
+hostname-strict=false
+hostname-strict-https=false
+
+# ---------------- REVERSE PROXY ----------------
+{% if keycloak_proxy_mode != "none" %}
+proxy={{ keycloak_proxy_mode }}
+{% endif %}
+

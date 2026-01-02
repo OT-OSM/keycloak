@@ -1,0 +1,16 @@
+- name: Install Keycloak systemd service
+  ansible.builtin.template:
+    src: keycloak.service.j2
+    dest: /etc/systemd/system/keycloak.service
+    owner: root
+    group: root
+    mode: "0644"
+  notify:
+    - reload systemd
+    - restart keycloak
+
+- name: Enable and start Keycloak service
+  ansible.builtin.systemd:
+    name: keycloak
+    enabled: yes
+    state: started

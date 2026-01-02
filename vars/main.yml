@@ -1,4 +1,4 @@
----
-base_url: https://downloads.jboss.org/keycloak
-version_conf: '/{{ keycloak_version }}/keycloak-{{ keycloak_version }}.tar.gz'
-keycloak_url_location: '{{ base_url }}{{ version_conf }}'
+# Internal role constants (not meant to be overridden)
+keycloak_service_name: keycloak
+keycloak_config_file: keycloak.conf
+keycloak_runtime: quarkus
