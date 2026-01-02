@@ -7,9 +7,9 @@
 - name: Configure and start Keycloak service
   ansible.builtin.include_tasks: services.yml
 
+- name: Verify Keycloak availability
+  ansible.builtin.include_tasks: verify.yml
+
 - name: Configure Keycloak Realm
   ansible.builtin.include_tasks: realm.yml
   when: keycloak_bootstrap_admin | bool
-
-- name: Verify Keycloak availability
-  ansible.builtin.include_tasks: verify.yml

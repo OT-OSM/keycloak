@@ -11,7 +11,7 @@ Group={{ keycloak_group }}
 # Load environment variables securely
 EnvironmentFile={{ keycloak_env_file }}
 
-ExecStart=/opt/keycloak/bin/kc.sh start \
+ExecStart={{ keycloak_install_dir }}/bin/kc.sh start --optimized \
   --http-enabled=true \
   --http-port={{ keycloak_http_port }} \
   --http-host=0.0.0.0

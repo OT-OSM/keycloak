@@ -32,3 +32,10 @@
     fail_msg: "Invalid log format. Supported: plain | json"
   when: keycloak_observability_enabled | bool
 
+- name: Wait for Keycloak to be ready
+  ansible.builtin.wait_for:
+    host: 127.0.0.1
+    port: "{{ keycloak_http_port }}"
+    delay: 5
+    timeout: 120
+
