@@ -9,7 +9,7 @@ User={{ keycloak_user }}
 Group={{ keycloak_group }}
 
 # Load environment variables securely
-EnvironmentFile=/etc/keycloak/keycloak.env
+EnvironmentFile={{ keycloak_env_file }}
 
 {% set idp_enabled = keycloak_identity_providers.oidc
    or keycloak_identity_providers.ldap

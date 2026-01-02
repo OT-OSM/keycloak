@@ -2,6 +2,22 @@
 # Install & configure Keycloak (binary + config)
 
 # -------------------------------------------------------------------
+# Create Keycloak system user & group
+# -------------------------------------------------------------------
+- name: Create Keycloak group
+  ansible.builtin.group:
+    name: "{{ keycloak_group }}"
+    system: yes
+
+- name: Create Keycloak user
+  ansible.builtin.user:
+    name: "{{ keycloak_user }}"
+    group: "{{ keycloak_group }}"
+    system: yes
+    home: "{{ keycloak_base_dir }}"
+    shell: /bin/bash
+
+# -------------------------------------------------------------------
 # Ensure base directory exists
 # -------------------------------------------------------------------
 - name: Ensure Keycloak base directory exists
@@ -10,12 +26,20 @@
     state: directory
     mode: "0755"
 
+- name: Ensure Keycloak versions directory exists
+  ansible.builtin.file:
+    path: "{{ keycloak_versions_dir }}"
+    state: directory
+    owner: "{{ keycloak_user }}"
+    group: "{{ keycloak_group }}"
+    mode: "0755"
+
 # -------------------------------------------------------------------
 # Check if Keycloak version already extracted
 # -------------------------------------------------------------------
 - name: Check if Keycloak version already extracted
   ansible.builtin.stat:
-    path: "{{ keycloak_versions_dir }}/keycloak-{{ keycloak_version }}"
+    path: "{{ keycloak_release_dir }}"
   register: kc_version_dir
 
 # -------------------------------------------------------------------
@@ -59,9 +83,9 @@
 # -------------------------------------------------------------------
 # Create symlink to current version
 # -------------------------------------------------------------------
-- name: Create Keycloak symlink to versioned directory
+- name: Create Keycloak symlink to current release
   ansible.builtin.file:
-    src: "{{ keycloak_versions_dir }}/keycloak-{{ keycloak_version }}"
+    src: "{{ keycloak_release_dir }}"
     dest: "{{ keycloak_install_dir }}"
     state: link
     force: yes
@@ -93,10 +117,10 @@
 # -------------------------------------------------------------------
 - name: Build Keycloak (Quarkus optimized)
   ansible.builtin.command:
-    cmd: "{{ keycloak_versions_dir }}/keycloak-{{ keycloak_version }}/bin/kc.sh build"
+    cmd: "{{ keycloak_install_dir }}/bin/kc.sh build"
   become_user: "{{ keycloak_user }}"
   args:
-    chdir: "{{ keycloak_versions_dir }}/keycloak-{{ keycloak_version }}"
+    chdir: "{{ keycloak_install_dir }}"
 
 # -------------------------------------------------------------------
 # Ensure /etc/keycloak config directory exists
@@ -110,7 +134,7 @@
     mode: "0755"
 
 # -------------------------------------------------------------------
-# Create Keycloak environment file (must exist BEFORE build)
+# Create Keycloak environment file
 # -------------------------------------------------------------------
 - name: Create Keycloak environment file
   ansible.builtin.template:
@@ -121,7 +145,7 @@
     mode: "0600"
 
 # -------------------------------------------------------------------
-# Realm import directory (optional)
+# Realm import (optional)
 # -------------------------------------------------------------------
 - name: Ensure realm import directory exists
   ansible.builtin.file:
@@ -135,9 +159,6 @@
       or keycloak_identity_providers.ldap
       or keycloak_identity_providers.saml
 
-# -------------------------------------------------------------------
-# Realm import for identity providers
-# -------------------------------------------------------------------
 - name: Render realm import file for identity providers
   ansible.builtin.template:
     src: realm-import.json.j2

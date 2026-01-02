@@ -1,7 +1,7 @@
 # ---------------- PostgreSQL ----------------
-postgres_port: 5432
-postgres_host: "localhost"
-
+keycloak_db_engine: "postgres"
+keycloak_db_port: 5432
+keycloak_db_host: "localhost"
 keycloak_db_name: "keycloak"
 keycloak_db_user: "keycloak"
 keycloak_db_password: "change_me"
@@ -16,15 +16,12 @@ keycloak_download_url: >
   https://github.com/keycloak/keycloak/releases/download/{{ keycloak_version }}/{{ keycloak_archive_name }}
 
 # ---------------- Paths ----------------
-keycloak_base_dir: "/opt"
-keycloak_versions_dir: "{{ keycloak_base_dir }}"
-keycloak_install_dir: "/opt/keycloak"
+keycloak_base_dir: "/opt/keycloak"
+keycloak_versions_dir: "{{ keycloak_base_dir }}/versions"
+keycloak_install_dir: "{{ keycloak_base_dir }}/current"
 keycloak_tmp_dir: "/tmp"
 
-# ---------------- Database Control ----------------
-# DB provisioning should be external by default
-keycloak_manage_db: false
-
+keycloak_release_dir: "{{ keycloak_versions_dir }}/keycloak-{{ keycloak_version }}"
 
 # ---------------- Admin Bootstrap ----------------
 keycloak_admin_user: "admin"
@@ -32,7 +29,10 @@ keycloak_admin_password: "change_me"
 
 # ---------------- Network ----------------
 keycloak_http_port: 8080
-keycloak_hostname: "localhost"
+keycloak_hostname: "3.7.55.175"
+
+# ---------------- Service / Runtime ----------------
+keycloak_env_file: /etc/keycloak/keycloak.env
 
 # ---------------- Java ----------------
 # Keycloak requires Java 17+

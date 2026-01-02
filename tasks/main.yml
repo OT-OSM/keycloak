@@ -1,14 +1,11 @@
 - name: Validate system & install prerequisites
-  ansible.builtin.import_tasks: prerequisites.yml
-
-- name: Configure database for Keycloak (optional)
-  ansible.builtin.import_tasks: postgresql.yml
+  ansible.builtin.include_tasks: prerequisites.yml
 
 - name: Install and configure Keycloak
-  ansible.builtin.import_tasks: keycloak.yml
+  ansible.builtin.include_tasks: install.yml
 
 - name: Configure and start Keycloak service
-  ansible.builtin.import_tasks: services.yml
+  ansible.builtin.include_tasks: services.yml
 
 - name: Verify Keycloak availability
-  ansible.builtin.import_tasks: verify.yml
+  ansible.builtin.include_tasks: verify.yml

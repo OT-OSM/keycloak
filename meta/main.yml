@@ -26,4 +26,5 @@ galaxy_info:
     - quarkus
     - devops
 
-dependencies: []
+dependencies:
+  - role: opstree_devops.java
