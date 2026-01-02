@@ -170,3 +170,4 @@
     - keycloak_identity_providers.oidc
       or keycloak_identity_providers.ldap
       or keycloak_identity_providers.saml
+      or keycloak_access_control_enabled
