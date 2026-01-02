@@ -23,17 +23,6 @@ keycloak_tmp_dir: "/tmp"
 
 keycloak_release_dir: "{{ keycloak_versions_dir }}/keycloak-{{ keycloak_version }}"
 
-# ---------------- Admin Bootstrap ----------------
-keycloak_admin_user: "admin"
-keycloak_admin_password: "change_me"
-
-# ---------------- Network ----------------
-keycloak_http_port: 8080
-keycloak_hostname: "3.7.55.175"
-
-# ---------------- Service / Runtime ----------------
-keycloak_env_file: /etc/keycloak/keycloak.env
-
 # ---------------- Java ----------------
 # Keycloak requires Java 17+
 java_version: "21"
@@ -41,6 +30,22 @@ java_version: "21"
 # ---------------- System User ----------------
 keycloak_user: "keycloak"
 keycloak_group: "keycloak"
+
+# ---------------- Network ----------------
+keycloak_http_port: 8080
+
+# ---------------- Service / Runtime ----------------
+keycloak_env_file: /etc/keycloak/keycloak.env
+
+# ---------------- Realm Security ----------------
+keycloak_realm_ssl_required: "NONE"   # NONE | EXTERNAL | ALL
+
+# Public identity (DNS preferred, IP allowed for demo)
+keycloak_public_hostname: ""
+
+# true  = behind reverse proxy (Nginx / ALB)
+# false = direct access
+keycloak_use_reverse_proxy: false
 
 # ---------------- TLS / HTTPS ----------------
 # Enable HTTPS directly in Keycloak
@@ -53,7 +58,7 @@ keycloak_tls_key_file: ""
 
 # ---------------- Reverse Proxy ----------------
 # none | edge | reencrypt
-keycloak_proxy_mode: "none"
+keycloak_proxy_mode: "edge"
 
 # ---------------- Identity Providers (Optional) ----------------
 # Enable external authentication providers via realm import
@@ -143,3 +148,22 @@ keycloak_group_role_mappings:
     - developer
   viewers:
     - viewer
+
+
+# ---------------- Observability ----------------
+keycloak_observability_enabled: false
+
+keycloak_management_port: 9000
+
+keycloak_health_enabled: true
+keycloak_metrics_enabled: true
+
+keycloak_log_level: INFO
+keycloak_log_format: json   # or json
+
+# ---------------- Admin Bootstrap Control ----------------
+keycloak_bootstrap_admin: true
+
+# ---------------- Admin Bootstrap ----------------
+keycloak_admin_user: "admin"
+keycloak_admin_password: "Admin@123"
