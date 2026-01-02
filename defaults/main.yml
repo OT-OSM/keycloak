@@ -2,6 +2,9 @@
 postgres_port: 5432
 postgres_host: "localhost"
 
+postgres_admin_user: "postgres"
+postgres_admin_password: "change_me"
+
 keycloak_db_name: "keycloak"
 keycloak_db_user: "keycloak"
 keycloak_db_password: "change_me"
@@ -23,7 +26,7 @@ keycloak_tmp_dir: "/tmp"
 
 # ---------------- Database Control ----------------
 # DB provisioning should be external by default
-keycloak_manage_db: false
+keycloak_manage_db: true
 
 
 # ---------------- Admin Bootstrap ----------------
@@ -32,7 +35,10 @@ keycloak_admin_password: "change_me"
 
 # ---------------- Network ----------------
 keycloak_http_port: 8080
-keycloak_hostname: "localhost"
+keycloak_hostname: "3.7.55.175"
+
+# ---------------- Service / Runtime ----------------
+keycloak_env_file: /etc/keycloak/keycloak.env
 
 # ---------------- Java ----------------
 # Keycloak requires Java 17+

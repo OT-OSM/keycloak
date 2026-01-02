@@ -1,0 +1,167 @@
+---
+# Install & configure Keycloak (binary + config)
+
+# -------------------------------------------------------------------
+# Create Keycloak system user & group
+# -------------------------------------------------------------------
+- name: Create Keycloak group
+  ansible.builtin.group:
+    name: "{{ keycloak_group }}"
+    system: yes
+
+- name: Create Keycloak user
+  ansible.builtin.user:
+    name: "{{ keycloak_user }}"
+    group: "{{ keycloak_group }}"
+    system: yes
+    home: "{{ keycloak_install_dir }}"
+    shell: /bin/bash
+
+# -------------------------------------------------------------------
+# Ensure base directory exists
+# -------------------------------------------------------------------
+- name: Ensure Keycloak base directory exists
+  ansible.builtin.file:
+    path: "{{ keycloak_base_dir }}"
+    state: directory
+    mode: "0755"
+
+# -------------------------------------------------------------------
+# Check if Keycloak version already extracted
+# -------------------------------------------------------------------
+- name: Check if Keycloak version already extracted
+  ansible.builtin.stat:
+    path: "{{ keycloak_versions_dir }}/keycloak-{{ keycloak_version }}"
+  register: kc_version_dir
+
+# -------------------------------------------------------------------
+# Download Keycloak archive (only if not extracted)
+# -------------------------------------------------------------------
+- name: Download Keycloak archive
+  ansible.builtin.get_url:
+    url: "{{ keycloak_download_url }}"
+    dest: "{{ keycloak_tmp_dir }}/{{ keycloak_archive_name }}"
+    mode: "0644"
+  when: not kc_version_dir.stat.exists
+
+# -------------------------------------------------------------------
+# Extract Keycloak (only if not extracted)
+# -------------------------------------------------------------------
+- name: Extract Keycloak archive
+  ansible.builtin.unarchive:
+    src: "{{ keycloak_tmp_dir }}/{{ keycloak_archive_name }}"
+    dest: "{{ keycloak_versions_dir }}"
+    remote_src: true
+    owner: "{{ keycloak_user }}"
+    group: "{{ keycloak_group }}"
+  when: not kc_version_dir.stat.exists
+
+# -------------------------------------------------------------------
+# Handle existing install path
+# -------------------------------------------------------------------
+- name: Check existing Keycloak install path
+  ansible.builtin.stat:
+    path: "{{ keycloak_install_dir }}"
+  register: kc_path
+
+- name: Backup existing Keycloak directory if not a symlink
+  ansible.builtin.command:
+    cmd: mv {{ keycloak_install_dir }} {{ keycloak_install_dir }}.bak
+  when:
+    - kc_path.stat.exists
+    - kc_path.stat.isdir
+    - not kc_path.stat.islnk
+
+# -------------------------------------------------------------------
+# Create symlink to current version
+# -------------------------------------------------------------------
+- name: Create Keycloak symlink to versioned directory
+  ansible.builtin.file:
+    src: "{{ keycloak_versions_dir }}/keycloak-{{ keycloak_version }}"
+    dest: "{{ keycloak_install_dir }}"
+    state: link
+    force: yes
+
+# -------------------------------------------------------------------
+# Configuration directory
+# -------------------------------------------------------------------
+- name: Ensure Keycloak config directory exists
+  ansible.builtin.file:
+    path: "{{ keycloak_install_dir }}/conf"
+    state: directory
+    owner: "{{ keycloak_user }}"
+    group: "{{ keycloak_group }}"
+    mode: "0755"
+
+# -------------------------------------------------------------------
+# Render keycloak.conf
+# -------------------------------------------------------------------
+- name: Render Keycloak configuration file
+  ansible.builtin.template:
+    src: keycloak.conf.j2
+    dest: "{{ keycloak_install_dir }}/conf/keycloak.conf"
+    owner: "{{ keycloak_user }}"
+    group: "{{ keycloak_group }}"
+    mode: "0644"
+
+# -------------------------------------------------------------------
+# Build Keycloak (Quarkus optimized runtime)
+# -------------------------------------------------------------------
+- name: Build Keycloak (Quarkus optimized)
+  ansible.builtin.command:
+    cmd: "{{ keycloak_versions_dir }}/keycloak-{{ keycloak_version }}/bin/kc.sh build"
+  become_user: "{{ keycloak_user }}"
+  args:
+    chdir: "{{ keycloak_versions_dir }}/keycloak-{{ keycloak_version }}"
+
+# -------------------------------------------------------------------
+# Ensure /etc/keycloak config directory exists
+# -------------------------------------------------------------------
+- name: Ensure /etc/keycloak directory exists
+  ansible.builtin.file:
+    path: /etc/keycloak
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+# -------------------------------------------------------------------
+# Create Keycloak environment file (must exist BEFORE build)
+# -------------------------------------------------------------------
+- name: Create Keycloak environment file
+  ansible.builtin.template:
+    src: keycloak.env.j2
+    dest: /etc/keycloak/keycloak.env
+    owner: root
+    group: root
+    mode: "0600"
+
+# -------------------------------------------------------------------
+# Realm import directory (optional)
+# -------------------------------------------------------------------
+- name: Ensure realm import directory exists
+  ansible.builtin.file:
+    path: "{{ keycloak_install_dir }}/data/import"
+    state: directory
+    owner: "{{ keycloak_user }}"
+    group: "{{ keycloak_group }}"
+    mode: "0755"
+  when:
+    - keycloak_identity_providers.oidc
+      or keycloak_identity_providers.ldap
+      or keycloak_identity_providers.saml
+
+# -------------------------------------------------------------------
+# Realm import for identity providers
+# -------------------------------------------------------------------
+- name: Render realm import file for identity providers
+  ansible.builtin.template:
+    src: realm-import.json.j2
+    dest: "{{ keycloak_install_dir }}/data/import/realm-import.json"
+    owner: "{{ keycloak_user }}"
+    group: "{{ keycloak_group }}"
+    mode: "0644"
+  when:
+    - keycloak_identity_providers.oidc
+      or keycloak_identity_providers.ldap
+      or keycloak_identity_providers.saml
