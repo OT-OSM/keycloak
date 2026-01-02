@@ -1,3 +1,8 @@
+---
+# -------------------------------------------------------------------
+# Install & manage Keycloak systemd service
+# -------------------------------------------------------------------
+
 - name: Install Keycloak systemd service
   ansible.builtin.template:
     src: keycloak.service.j2
@@ -5,10 +10,12 @@
     owner: root
     group: root
     mode: "0644"
+  register: keycloak_service_unit
 
-- name: Reload systemd daemon
+- name: Reload systemd daemon if service file changed
   ansible.builtin.systemd:
     daemon_reload: true
+  when: keycloak_service_unit.changed
 
 - name: Enable and start Keycloak service
   ansible.builtin.systemd:
