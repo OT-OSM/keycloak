@@ -12,13 +12,6 @@
     success_msg: >
       Supported OS detected.
 
-- name: Validate Java runtime version
-  assert:
-    that:
-      - java_version | int >= 17
-    fail_msg: >
-      Keycloak requires Java 17 or newer.
-
 # Install base dependencies
 - name: Install base packages
   apt:
