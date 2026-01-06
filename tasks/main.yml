@@ -1,6 +1,10 @@
 - name: Validate system & install prerequisites
   ansible.builtin.include_tasks: prerequisites.yml
 
+- name: Configure database for Keycloak
+  ansible.builtin.include_tasks: postgres.yml
+  when: keycloak_manage_db | bool
+
 - name: Install and configure Keycloak
   ansible.builtin.include_tasks: install.yml
 
@@ -13,3 +17,6 @@
 - name: Configure Keycloak Realm
   ansible.builtin.include_tasks: realm.yml
   when: keycloak_bootstrap_admin | bool
+
+- name: Configure Identity Providers
+  include_tasks: idp.yml

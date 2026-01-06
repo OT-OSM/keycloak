@@ -9,6 +9,21 @@
   failed_when: keycloak_status.stdout not in ["active", "activating"]
 
 # -------------------------------------------------------------------
+# Validate external PostgreSQL configuration (runtime readiness)
+# -------------------------------------------------------------------
+- name: Validate external PostgreSQL configuration
+  ansible.builtin.assert:
+    that:
+      - keycloak_db_engine == "postgres"
+      - keycloak_db_host | length > 0
+      - keycloak_db_name | length > 0
+      - keycloak_db_user | length > 0
+      - keycloak_db_password | length > 0
+    fail_msg: >
+      keycloak_manage_db=false but external database details are incomplete.
+  when: not keycloak_manage_db | bool
+
+# -------------------------------------------------------------------
 # Informational: HTTPS configuration status
 # (No port waiting to avoid runtime TLS dependency)
 # -------------------------------------------------------------------
@@ -37,5 +52,5 @@
     host: 127.0.0.1
     port: "{{ keycloak_http_port }}"
     delay: 5
-    timeout: 120
+    timeout: 300
 

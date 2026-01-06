@@ -1,15 +1,18 @@
-# ---------------- PostgreSQL ----------------
+# ---------------- Database Management ----------------
+# true  = role will create/manage PostgreSQL DB & user
+# false = external managed DB (RDS / DBA-managed)
+keycloak_manage_db: true
 keycloak_db_engine: "postgres"
 keycloak_db_port: 5432
 keycloak_db_host: "localhost"
 keycloak_db_name: "keycloak"
 keycloak_db_user: "keycloak"
 keycloak_db_password: "change_me"
+#keycloak_db_password: "{{ vault_keycloak_db_password }}"
 
 # ---------------- Keycloak Versioning ----------------
 # Keycloak 17+ (Quarkus-based). Tested with 26.x
 keycloak_version: "26.0.7"
-
 keycloak_archive_name: "keycloak-{{ keycloak_version }}.tar.gz"
 
 keycloak_download_url: >
@@ -22,10 +25,6 @@ keycloak_install_dir: "{{ keycloak_base_dir }}/current"
 keycloak_tmp_dir: "/tmp"
 
 keycloak_release_dir: "{{ keycloak_versions_dir }}/keycloak-{{ keycloak_version }}"
-
-# ---------------- Java ----------------
-# Keycloak requires Java 17+
-java_version: "21"
 
 # ---------------- System User ----------------
 keycloak_user: "keycloak"
@@ -66,7 +65,7 @@ keycloak_proxy_mode: "edge"
 # All providers are disabled by default
 
 keycloak_identity_providers:
-  oidc: false
+  oidc: true
   ldap: false
   saml: false
 
@@ -74,15 +73,13 @@ keycloak_identity_providers:
 # Example: Google, Azure AD, Keycloak Broker, etc.
 # Used only if keycloak_identity_providers.oidc = true
 
-keycloak_oidc_providers: []
-# Example:
-# keycloak_oidc_providers:
-#   - alias: "google"
-#     display_name: "Google Login"
-#     issuer: "https://accounts.google.com"
-#     client_id: "xxxxx"
-#     client_secret: "yyyyy"
-#     default_scopes: "openid profile email"
+keycloak_oidc_providers:
+  - alias: "google"
+    display_name: "Sign in with Google"
+    issuer: "https://accounts.google.com"
+    client_id: "48371270696-od14l2i9civj1bh108n618qong6cr0fa.apps.googleusercontent.com"
+    client_secret: "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"
+    default_scopes: "openid profile email"
 
 # ---------------- LDAP Identity Providers ----------------
 # Used only if keycloak_identity_providers.ldap = true
@@ -151,7 +148,7 @@ keycloak_group_role_mappings:
 
 
 # ---------------- Observability ----------------
-keycloak_observability_enabled: false
+keycloak_observability_enabled: true
 
 keycloak_management_port: 9000
 

@@ -91,6 +91,22 @@
     force: yes
 
 # -------------------------------------------------------------------
+# Ensure Keycloak runtime data directories exist (REQUIRED)
+# -------------------------------------------------------------------
+- name: Ensure Keycloak runtime data directories exist
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ keycloak_user }}"
+    group: "{{ keycloak_group }}"
+    mode: "0755"
+  loop:
+    - "{{ keycloak_install_dir }}/data"
+    - "{{ keycloak_install_dir }}/data/transaction-logs"
+    - "{{ keycloak_install_dir }}/data/transaction-logs/ShadowNoFileLockStore"
+    - "{{ keycloak_install_dir }}/data/transaction-logs/ShadowNoFileLockStore/defaultStore"
+
+# -------------------------------------------------------------------
 # Configuration directory
 # -------------------------------------------------------------------
 - name: Ensure Keycloak config directory exists

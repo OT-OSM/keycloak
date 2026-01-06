@@ -7,14 +7,15 @@ Wants=network.target
 Type=simple
 User={{ keycloak_user }}
 Group={{ keycloak_group }}
+WorkingDirectory={{ keycloak_install_dir }}
 
-# Load environment variables securely
 EnvironmentFile={{ keycloak_env_file }}
+Environment=KC_DATA_DIR={{ keycloak_install_dir }}/data
 
-ExecStart={{ keycloak_install_dir }}/bin/kc.sh start --optimized \
+ExecStart={{ keycloak_install_dir }}/bin/kc.sh start \
+  --optimized \
   --http-enabled=true \
-  --http-port={{ keycloak_http_port }} \
-  --http-host=0.0.0.0
+  --http-port={{ keycloak_http_port }}
 
 Restart=on-failure
 RestartSec=10
