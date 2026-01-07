@@ -1,7 +1,6 @@
 # ---------------- Database Management ----------------
 # true  = role will create/manage PostgreSQL DB & user
 # false = external managed DB (RDS / DBA-managed)
-keycloak_manage_db: true
 keycloak_db_engine: "postgres"
 keycloak_db_port: 5432
 keycloak_db_host: "localhost"
@@ -57,7 +56,7 @@ keycloak_tls_key_file: ""
 
 # ---------------- Reverse Proxy ----------------
 # none | edge | reencrypt
-keycloak_proxy_mode: "edge"
+keycloak_proxy_mode: "none"
 
 # ---------------- Identity Providers (Optional) ----------------
 # Enable external authentication providers via realm import
@@ -76,10 +75,10 @@ keycloak_identity_providers:
 keycloak_oidc_providers:
   - alias: "google"
     display_name: "Sign in with Google"
-    issuer: "https://accounts.google.com"
-    client_id: "48371270696-od14l2i9civj1bh108n618qong6cr0fa.apps.googleusercontent.com"
-    client_secret: "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"
-    default_scopes: "openid profile email"
+    issuer: "https://accounts.XXX.XXX"
+    client_id: "<google-client-id>"
+    client_secret: "<google-client-secret>"
+    default_scopes: "https://<keycloak-domain>/realms/<realm>/broker/google/endpoint"
 
 # ---------------- LDAP Identity Providers ----------------
 # Used only if keycloak_identity_providers.ldap = true
@@ -93,7 +92,7 @@ keycloak_ldap_providers: []
 #     bind_dn: "cn=admin,dc=example,dc=com"
 #     bind_credential: "ldap_password"
 
-# ---------------- SAML Identity Providers ----------------
+# --------------- SAML Identity Providers ----------------
 # Used only if keycloak_identity_providers.saml = true
 
 keycloak_saml_providers: []

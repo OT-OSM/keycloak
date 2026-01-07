@@ -1,0 +1,37 @@
+# ---------------- PostgreSQL Validation ----------------
+
+- name: Check PostgreSQL connectivity
+  command: >
+    psql -h {{ keycloak_db_host }}
+         -p {{ keycloak_db_port }}
+         -U {{ keycloak_db_user }}
+         -d {{ keycloak_db_name }}
+         -c '\q'
+  environment:
+    PGPASSWORD: "{{ keycloak_db_password }}"
+  register: pg_conn
+  failed_when: pg_conn.rc != 0
+
+- name: Verify Keycloak database exists
+  command: >
+    psql -h {{ keycloak_db_host }}
+         -p {{ keycloak_db_port }}
+         -U {{ keycloak_db_user }}
+         -d postgres
+         -tAc "SELECT 1 FROM pg_database WHERE datname='{{ keycloak_db_name }}';"
+  environment:
+    PGPASSWORD: "{{ keycloak_db_password }}"
+  register: pg_db_exists
+  failed_when: pg_db_exists.stdout.strip() != "1"
+
+- name: Verify user has CONNECT privilege on Keycloak DB
+  command: >
+    psql -h {{ keycloak_db_host }}
+         -p {{ keycloak_db_port }}
+         -U {{ keycloak_db_user }}
+         -d {{ keycloak_db_name }}
+         -tAc "SELECT has_database_privilege('{{ keycloak_db_user }}','{{ keycloak_db_name }}','CONNECT');"
+  environment:
+    PGPASSWORD: "{{ keycloak_db_password }}"
+  register: pg_priv_check
+  failed_when: pg_priv_check.stdout.strip() != "t"
