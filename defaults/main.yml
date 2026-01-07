@@ -1,6 +1,4 @@
 # ---------------- Database Management ----------------
-# true  = role will create/manage PostgreSQL DB & user
-# false = external managed DB (RDS / DBA-managed)
 keycloak_db_engine: "postgres"
 keycloak_db_port: 5432
 keycloak_db_host: "localhost"

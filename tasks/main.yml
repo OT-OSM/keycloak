@@ -1,9 +1,6 @@
 - name: Validate system & install prerequisites
   ansible.builtin.include_tasks: prerequisites.yml
 
-- name: Validate PostgreSQL prerequisites
-  ansible.builtin.include_tasks: db_validation.yml
-
 - name: Install and configure Keycloak
   ansible.builtin.include_tasks: install.yml
 
