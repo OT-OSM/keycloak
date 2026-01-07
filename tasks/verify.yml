@@ -2,14 +2,25 @@
 # -------------------------------------------------------------------
 # Verify Keycloak service is running
 # -------------------------------------------------------------------
-- name: Wait for Keycloak service to become active
+- name: Verify Keycloak service is active
   ansible.builtin.command: systemctl is-active keycloak
-  register: kc_service_status
-  retries: 10
-  delay: 10
-  until: kc_service_status.stdout == "active"
+  register: keycloak_status
   changed_when: false
+  failed_when: keycloak_status.stdout not in ["active", "activating"]
 
+# -------------------------------------------------------------------
+# Validate external PostgreSQL configuration (runtime readiness)
+# -------------------------------------------------------------------
+- name: Validate external PostgreSQL configuration
+  ansible.builtin.assert:
+    that:
+      - keycloak_db_engine == "postgres"
+      - keycloak_db_host | length > 0
+      - keycloak_db_name | length > 0
+      - keycloak_db_user | length > 0
+      - keycloak_db_password | length > 0
+    fail_msg: >
+      External PostgreSQL configuration is incomplete.
 # -------------------------------------------------------------------
 # Informational: HTTPS configuration status
 # (No port waiting to avoid runtime TLS dependency)
@@ -22,3 +33,53 @@
         else 'DISABLED'
       }}.
       Runtime TLS binding depends on certificate validation.
+
+# -------------------------------------------------------------------
+# Observability Configuration
+# -------------------------------------------------------------------
+
+- name: Validate observability configuration
+  ansible.builtin.assert:
+    that:
+      - keycloak_log_format in ['plain', 'json']
+    fail_msg: "Invalid log format. Supported: plain | json"
+  when: keycloak_observability_enabled | bool
+
+# -------------------------------------------------------------------
+# Validate HTTPS / TLS configuration (if enabled)
+# -------------------------------------------------------------------
+- name: Validate TLS inputs when HTTPS is enabled
+  ansible.builtin.assert:
+    that:
+      - keycloak_tls_cert_file | length > 0
+      - keycloak_tls_key_file | length > 0
+    fail_msg: >
+      HTTPS is enabled but TLS certificate or key path is not provided.
+  when: keycloak_https_enabled | bool
+
+- name: Check TLS certificate file exists
+  ansible.builtin.stat:
+    path: "{{ keycloak_tls_cert_file }}"
+  register: kc_tls_cert
+  when: keycloak_https_enabled | bool
+
+- name: Check TLS key file exists
+  ansible.builtin.stat:
+    path: "{{ keycloak_tls_key_file }}"
+  register: kc_tls_key
+  when: keycloak_https_enabled | bool
+
+- name: Fail if TLS certificate or key is missing
+  ansible.builtin.fail:
+    msg: "TLS certificate or key file does not exist on the target host."
+  when:
+    - keycloak_https_enabled | bool
+    - not kc_tls_cert.stat.exists or not kc_tls_key.stat.exists
+
+- name: Wait for Keycloak to be ready
+  ansible.builtin.wait_for:
+    host: 127.0.0.1
+    port: "{{ keycloak_https_port if keycloak_https_enabled | bool else keycloak_http_port }}"
+    delay: 5
+    timeout: 300
+

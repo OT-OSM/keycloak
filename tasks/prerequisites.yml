@@ -12,11 +12,18 @@
     success_msg: >
       Supported OS detected.
 
-- name: Validate Java runtime version
-  assert:
+- name: Check Java runtime availability
+  ansible.builtin.command: java --version
+  register: java_check
+  changed_when: false
+  failed_when: java_check.rc != 0
+
+- name: Validate Java major version (runtime)
+  ansible.builtin.assert:
     that:
-      - java_version | int >= 17
+      - java_check.stdout is search("openjdk 17|openjdk 18|openjdk 19|openjdk 20|openjdk 21")
     fail_msg: >
+      Installed Java version is not supported.
       Keycloak requires Java 17 or newer.
 
 # Install base dependencies

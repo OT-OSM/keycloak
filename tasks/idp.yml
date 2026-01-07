@@ -1,0 +1,17 @@
+---
+- name: Login to Keycloak Admin API
+  ansible.builtin.command: >
+    {{ keycloak_install_dir }}/bin/kcadm.sh config credentials
+    --server http://localhost:{{ keycloak_http_port }}
+    --realm master
+    --user {{ keycloak_admin_user }}
+    --password {{ keycloak_admin_password }}
+  become_user: "{{ keycloak_user }}"
+  changed_when: false
+
+- name: Configure OIDC Identity Providers
+  ansible.builtin.include_tasks: idp-oidc.yml
+  when:
+    - keycloak_identity_providers.oidc | bool
+    - keycloak_oidc_providers | length > 0
+

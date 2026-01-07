@@ -91,6 +91,22 @@
     force: yes
 
 # -------------------------------------------------------------------
+# Ensure Keycloak runtime data directories exist (REQUIRED)
+# -------------------------------------------------------------------
+- name: Ensure Keycloak runtime data directories exist
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ keycloak_user }}"
+    group: "{{ keycloak_group }}"
+    mode: "0755"
+  loop:
+    - "{{ keycloak_install_dir }}/data"
+    - "{{ keycloak_install_dir }}/data/transaction-logs"
+    - "{{ keycloak_install_dir }}/data/transaction-logs/ShadowNoFileLockStore"
+    - "{{ keycloak_install_dir }}/data/transaction-logs/ShadowNoFileLockStore/defaultStore"
+
+# -------------------------------------------------------------------
 # Configuration directory
 # -------------------------------------------------------------------
 - name: Ensure Keycloak config directory exists
@@ -100,6 +116,20 @@
     owner: "{{ keycloak_user }}"
     group: "{{ keycloak_group }}"
     mode: "0755"
+
+# -------------------------------------------------------------------
+# Ensure TLS certificate directory exists (if HTTPS enabled)
+# -------------------------------------------------------------------
+- name: Ensure TLS certificate directory exists
+  ansible.builtin.file:
+    path: "{{ keycloak_tls_cert_file | dirname }}"
+    state: directory
+    owner: "{{ keycloak_user }}"
+    group: "{{ keycloak_group }}"
+    mode: "0750"
+  when:
+    - keycloak_https_enabled | bool
+    - keycloak_tls_cert_file | length > 0
 
 # -------------------------------------------------------------------
 # Render keycloak.conf
@@ -145,7 +175,7 @@
     mode: "0600"
 
 # -------------------------------------------------------------------
-# Realm import (optional)
+# Realm import (optional – access control only)
 # -------------------------------------------------------------------
 - name: Ensure realm import directory exists
   ansible.builtin.file:
@@ -154,20 +184,13 @@
     owner: "{{ keycloak_user }}"
     group: "{{ keycloak_group }}"
     mode: "0755"
-  when:
-    - keycloak_identity_providers.oidc
-      or keycloak_identity_providers.ldap
-      or keycloak_identity_providers.saml
+  when: keycloak_access_control_enabled | bool
 
-- name: Render realm import file for identity providers
+- name: Render realm import file (access control only)
   ansible.builtin.template:
     src: realm-import.json.j2
     dest: "{{ keycloak_install_dir }}/data/import/realm-import.json"
     owner: "{{ keycloak_user }}"
     group: "{{ keycloak_group }}"
     mode: "0644"
-  when:
-    - keycloak_identity_providers.oidc
-      or keycloak_identity_providers.ldap
-      or keycloak_identity_providers.saml
-      or keycloak_access_control_enabled
+  when: keycloak_access_control_enabled | bool

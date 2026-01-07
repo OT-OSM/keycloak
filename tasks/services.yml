@@ -2,15 +2,6 @@
 # -------------------------------------------------------------------
 # Install & manage Keycloak systemd service
 # -------------------------------------------------------------------
-- name: Ensure Keycloak database owner is correct
-  community.postgresql.postgresql_owner:
-    db: "{{ keycloak_db_name }}"
-    new_owner: "{{ keycloak_db_user }}"
-    login_host: "{{ keycloak_db_host }}"
-    login_user: "{{ keycloak_db_user }}"
-    login_password: "{{ keycloak_db_password }}"
-    login_port: "{{ keycloak_db_port }}"
-  when: keycloak_db_engine == "postgres"
 
 - name: Install Keycloak systemd service
   ansible.builtin.template:
