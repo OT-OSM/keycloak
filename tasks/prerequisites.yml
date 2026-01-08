@@ -27,6 +27,7 @@
   ansible.builtin.assert:
     that:
       - "java_major_version is defined"
+      - "java_major_version | int >= 17"
     fail_msg: "Java version {{ java_major_version | default('not found') }} is installed, but version 17 or higher is required."
     success_msg: "Java version {{ java_major_version }} meets the requirement of 17 or higher."
   when: java_major_version is defined
