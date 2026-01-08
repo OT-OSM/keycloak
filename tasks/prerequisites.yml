@@ -12,19 +12,25 @@
     success_msg: >
       Supported OS detected.
 
-- name: Check Java runtime availability
-  ansible.builtin.command: java --version
-  register: java_check
-  changed_when: false
-  failed_when: java_check.rc != 0
+- name: Fetch Java version
+  ansible.builtin.shell: |
+    java -version 2>&1 | awk -F'"' 'NR==1{ print $2 }' | awk -F. '{ print $1 }'
+  register: java_version_output
+  failed_when: java_version_output.rc != 0
 
-- name: Validate Java major version (runtime)
+- name: Set java_major_version fact if command succeeded
+  ansible.builtin.set_fact:
+    java_major_version: "{{ java_version_output.stdout | default('0') }}"
+  when: java_version_output.rc == 0
+
+- name: Assert that Java version is 17 or higher
   ansible.builtin.assert:
     that:
-      - java_check.stdout is search("openjdk 17|openjdk 18|openjdk 19|openjdk 20|openjdk 21")
-    fail_msg: >
-      Installed Java version is not supported.
-      Keycloak requires Java 17 or newer.
+      - "java_major_version is defined"
+      - "java_major_version | version_compare('17', '>=')"
+    fail_msg: "Java version {{ java_major_version | default('not found') }} is installed, but version 17 or higher is required."
+    success_msg: "Java version {{ java_major_version }} meets the requirement of 17 or higher."
+  when: java_major_version is defined
 
 # Install base dependencies
 - name: Install base packages
