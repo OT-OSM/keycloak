@@ -11,6 +11,7 @@
       This role supports Ubuntu 20.04+ only.
     success_msg: >
       Supported OS detected.
+
 - name: Fetch Java version
   ansible.builtin.shell: |
     java -version 2>&1 | awk -F'"' 'NR==1{ print $2 }' | awk -F. '{ print $1 }'
