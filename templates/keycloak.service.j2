@@ -12,10 +12,7 @@ WorkingDirectory={{ keycloak_install_dir }}
 EnvironmentFile={{ keycloak_env_file }}
 Environment=KC_DATA_DIR={{ keycloak_install_dir }}/data
 
-ExecStart={{ keycloak_install_dir }}/bin/kc.sh start \
-  --optimized \
-  --http-enabled=true \
-  --http-port={{ keycloak_http_port }}
+ExecStart={{ keycloak_install_dir }}/bin/kc.sh start --optimized
 
 Restart=on-failure
 RestartSec=10
