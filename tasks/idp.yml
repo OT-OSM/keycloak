@@ -12,5 +12,5 @@
 - name: Configure OIDC Identity Providers
   ansible.builtin.include_tasks: idp-oidc.yml
   when:
-    - keycloak_identity_providers.oidc | bool
+    - keycloak_identity_providers_oidc | bool
     - keycloak_oidc_providers | length > 0
