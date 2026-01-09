@@ -18,3 +18,4 @@
     
 - name: Configure Identity Providers
   include_tasks: idp.yml
+  when: keycloak_identity_providers.oidc | bool
