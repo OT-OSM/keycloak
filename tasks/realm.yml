@@ -1,23 +1,19 @@
 - name: Login to Keycloak Admin API
   ansible.builtin.command: >
     {{ keycloak_install_dir }}/bin/kcadm.sh config credentials
-    --server {{
-      (keycloak_https_enabled | bool)
-      | ternary(
-          'https://localhost:' ~ keycloak_https_port,
-          'http://localhost:' ~ keycloak_http_port
-        )
-    }}
+    --server http://localhost:{{ keycloak_http_port }}
     --realm master
     --user {{ keycloak_admin_user }}
     --password {{ keycloak_admin_password }}
   become_user: "{{ keycloak_user }}"
-  no_log: false
-  when: keycloak_http_enabled | bool || keycloak_https_enabled | bool
+  no_log: true
+  when: keycloak_http_enabled | bool
 
 - name: Disable HTTPS requirement for master realm (DEV / DEMO)
   ansible.builtin.command: >
     {{ keycloak_install_dir }}/bin/kcadm.sh update realms/master
     -s sslRequired=NONE
   become_user: "{{ keycloak_user }}"
-  when: keycloak_http_enabled | bool || not keycloak_https_enabled | bool
+  when:
+    - keycloak_http_enabled | bool
+    - not keycloak_https_enabled | bool
