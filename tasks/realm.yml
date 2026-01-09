@@ -12,7 +12,7 @@
     --user {{ keycloak_admin_user }}
     --password {{ keycloak_admin_password }}
   become_user: "{{ keycloak_user }}"
-  no_log: true
+  no_log: false
   when: keycloak_http_enabled | bool || keycloak_https_enabled | bool
 
 - name: Disable HTTPS requirement for master realm (DEV / DEMO)
