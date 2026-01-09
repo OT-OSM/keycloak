@@ -62,7 +62,7 @@ keycloak_proxy_mode: "none"
 # All providers are disabled by default
 
 keycloak_identity_providers:
-  oidc: true
+  oidc: false
   ldap: false
   saml: false
 
