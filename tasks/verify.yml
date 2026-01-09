@@ -76,10 +76,9 @@
     - keycloak_https_enabled | bool
     - not kc_tls_cert.stat.exists or not kc_tls_key.stat.exists
 
-- name: Wait for Keycloak to be ready
-  ansible.builtin.wait_for:
-    host: 127.0.0.1
-    port: "{{ keycloak_https_port if keycloak_https_enabled | bool else keycloak_http_port }}"
-    delay: 5
-    timeout: 300
+- name: Verify Keycloak service is active (final readiness check)
+  ansible.builtin.command: systemctl is-active keycloak
+  register: keycloak_status
+  changed_when: false
+  failed_when: keycloak_status.stdout != "active"
 
