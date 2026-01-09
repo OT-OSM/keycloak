@@ -31,6 +31,23 @@
     fail_msg: "Java version {{ java_major_version | default('not found') }} is installed, but version 17 or higher is required."
     success_msg: "Java version {{ java_major_version }} meets the requirement of 17 or higher."
   when: java_major_version is defined
+- name: Run Java-dependent task
+  ansible.builtin.command: java -version
+  environment:
+    JAVA_HOME: "{{ java_home }}"
+    PATH: "{{ java_home }}/bin:{{ ansible_env.PATH }}"
+  when:
+    - java_home is defined
+    - java_home | length > 0
+ 
+ - name: Run Java-dependent task
+  ansible.builtin.command: java -version
+  environment:
+    JAVA_HOME: "{{ java_home }}"
+    PATH: "{{ java_home }}/bin:{{ ansible_env.PATH }}"
+  when:
+    - java_home is defined
+    - java_home | length > 0
 
 # Install base dependencies
 - name: Install base packages
