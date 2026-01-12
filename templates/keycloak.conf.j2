@@ -18,11 +18,11 @@ http-host=0.0.0.0
 
 # ---------------- HOSTNAME ----------------
 hostname={{ keycloak_public_hostname }}
-hostname-strict=false
-hostname-strict-https=false
+hostname-strict={{ keycloak_hostname_strict | lower }}
+hostname-strict-https={{ keycloak_hostname_strict_https | lower }}
 
 # ---------------- PROXY ----------------
-proxy=none
+proxy={{ keycloak_proxy_mode }}
 
 # ---------------- OBSERVABILITY ----------------
 {% if keycloak_observability_enabled | bool %}
