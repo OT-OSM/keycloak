@@ -161,3 +161,12 @@ keycloak_bootstrap_admin: true
 # ---------------- Admin Bootstrap ----------------
 keycloak_admin_user: "admin"
 keycloak_admin_password: "Admin@123"
+
+# ---------------- HA / CLUSTER ----------------
+keycloak_ha_enabled: false          # DEFAULT OFF (global role safe)
+
+# Logical cluster name (same on all nodes)
+keycloak_cluster_name: keycloak-cluster
+
+# Unique per node (auto from inventory)
+keycloak_node_name: "{{ inventory_hostname }}"
