@@ -12,16 +12,7 @@ WorkingDirectory={{ keycloak_install_dir }}
 EnvironmentFile={{ keycloak_env_file }}
 Environment=KC_DATA_DIR={{ keycloak_install_dir }}/data
 
-ExecStart={{ keycloak_install_dir }}/bin/kc.sh start --optimized \
-{% if keycloak_https_enabled | bool %}
-  --https-port={{ keycloak_https_port }} \
-  --https-certificate-file={{ keycloak_tls_cert_file }} \
-  --https-certificate-key-file={{ keycloak_tls_key_file }} \
-{% else %}
-  --http-port={{ keycloak_http_port }} \
-{% endif %}
-  --hostname={{ keycloak_public_hostname }} \
-  --proxy={{ keycloak_proxy_mode }}
+ExecStart={{ keycloak_install_dir }}/bin/kc.sh start --optimized
 
 Restart=on-failure
 RestartSec=10
