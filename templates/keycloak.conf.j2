@@ -44,3 +44,19 @@ log-level={{ keycloak_log_level }}
 log-console-output=json
 {% endif %}
 {% endif %}
+
+
+# ---------------- CLUSTER / HA ----------------
+{% if keycloak_ha_enabled | bool %}
+
+cache=ispn
+cache-stack=tcp
+
+cluster={{ keycloak_cluster_name }}
+node-name={{ keycloak_node_name }}
+
+# VM-safe discovery
+jgroups.discovery.protocol=JDBC_PING
+jgroups.jdbc_ping.datasource=default
+
+{% endif %}

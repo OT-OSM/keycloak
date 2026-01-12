@@ -83,3 +83,10 @@
     delay: 5
     timeout: 300
 
+- name: Validate HA configuration when enabled
+  ansible.builtin.assert:
+    that:
+      - keycloak_cluster_name | length > 0
+      - keycloak_node_name | length > 0
+    fail_msg: "HA enabled but cluster_name or node_name missing"
+  when: keycloak_ha_enabled | bool
