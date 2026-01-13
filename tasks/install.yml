@@ -151,6 +151,7 @@
   become_user: "{{ keycloak_user }}"
   args:
     chdir: "{{ keycloak_install_dir }}"
+    creates: "{{ keycloak_install_dir }}/data/quarkus"
 
 # -------------------------------------------------------------------
 # Ensure /etc/keycloak config directory exists

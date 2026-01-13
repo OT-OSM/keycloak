@@ -7,6 +7,7 @@ db-username={{ keycloak_db_user }}
 {% if keycloak_https_enabled | bool %}
 http-enabled=false
 
+https-host={{ keycloak_https_host | default('0.0.0.0') }}
 https-port={{ keycloak_https_port }}
 https-certificate-file={{ keycloak_tls_cert_file }}
 https-certificate-key-file={{ keycloak_tls_key_file }}
@@ -50,12 +51,14 @@ log-console-output=json
 {% if keycloak_ha_enabled | bool %}
 
 cache=ispn
-cache-stack=tcp
+cache-stack={{ keycloak_cache_stack | default('tcp') }}
 
 cluster={{ keycloak_cluster_name }}
 node-name={{ keycloak_node_name }}
 
-# VM-safe discovery
+cache-owner-count=2
+cache-owner-count-auth-sessions=2
+
 jgroups.discovery.protocol=JDBC_PING
 jgroups.jdbc_ping.datasource=default
 

@@ -14,7 +14,7 @@ Environment=KC_DATA_DIR={{ keycloak_install_dir }}/data
 
 ExecStart={{ keycloak_install_dir }}/bin/kc.sh start
 
-Restart=on-failure
+Restart=always
 RestartSec=10
 TimeoutStartSec=300
 

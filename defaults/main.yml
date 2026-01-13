@@ -48,6 +48,7 @@ keycloak_use_reverse_proxy: false
 keycloak_https_enabled: false
 
 # Used only if keycloak_https_enabled = true
+keycloak_https_host: "0.0.0.0"
 keycloak_https_port: 8443
 keycloak_tls_cert_file: ""
 keycloak_tls_key_file: ""
