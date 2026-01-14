@@ -18,7 +18,7 @@ http-host=0.0.0.0
 {% endif %}
 
 # ---------------- HOSTNAME ----------------
-hostname={{ keycloak_public_hostname }}
+hostname=https://{{ keycloak_public_hostname }}
 hostname-strict={{ keycloak_hostname_strict | lower }}
 hostname-strict-https={{ keycloak_hostname_strict_https | lower }}
 
