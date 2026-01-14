@@ -14,7 +14,6 @@
   ansible.builtin.include_tasks: realm.yml
   when:
     - keycloak_bootstrap_admin | bool
-    - keycloak_http_enabled | bool
     
 - name: Configure Identity Providers
   include_tasks: idp.yml

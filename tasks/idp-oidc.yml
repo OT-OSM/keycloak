@@ -4,14 +4,15 @@
     {{ keycloak_install_dir }}/bin/kcadm.sh create identity-provider/instances
     -r {{ keycloak_realm_name }}
     -s alias={{ item.alias }}
-    -s providerId=google
+    -s providerId=oidc
     -s enabled=true
     -s displayName="{{ item.display_name }}"
     -s trustEmail=true
     -s storeToken=true
     -s addReadTokenRoleOnCreate=true
-    -s config.clientId={{ item.client_id }}
-    -s config.clientSecret={{ item.client_secret }}
+    -s config.issuer="{{ item.issuer }}"
+    -s config.clientId="{{ item.client_id }}"
+    -s config.clientSecret="{{ item.client_secret }}"
     -s config.defaultScope="{{ item.default_scopes }}"
   loop: "{{ keycloak_oidc_providers }}"
   become_user: "{{ keycloak_user }}"

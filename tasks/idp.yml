@@ -1,11 +1,13 @@
 ---
+---
 - name: Login to Keycloak Admin API
   ansible.builtin.command: >
     {{ keycloak_install_dir }}/bin/kcadm.sh config credentials
-    --server http://localhost:{{ keycloak_http_port }}
+    --server {{ keycloak_admin_url }}
     --realm master
     --user {{ keycloak_admin_user }}
     --password {{ keycloak_admin_password }}
+    --insecure
   become_user: "{{ keycloak_user }}"
   changed_when: false
 
