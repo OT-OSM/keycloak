@@ -1,5 +1,5 @@
 ---
-- name: Create OIDC Identity Provider
+- name: Create Azure OIDC Identity Provider
   ansible.builtin.command: >
     {{ keycloak_install_dir }}/bin/kcadm.sh create identity-provider/instances
     -r {{ keycloak_realm_name }}
@@ -7,9 +7,8 @@
     -s providerId=oidc
     -s enabled=true
     -s displayName="{{ item.display_name }}"
-    -s trustEmail=true
-    -s storeToken=true
-    -s addReadTokenRoleOnCreate=true
+    -s config.discoveryUrl="{{ item.discovery_endpoint }}"
+    -s config.clientId="{{ item.client_id }}"
     -s config.clientSecret="{{ item.client_secret }}"
     -s config.defaultScope="{{ item.default_scopes }}"
   loop: "{{ keycloak_oidc_providers }}"
