@@ -1,23 +1,19 @@
 ---
-- name: Create Azure OIDC Identity Provider
-  ansible.builtin.command: >
+- name: Create Azure Entra ID OIDC Identity Provider (DISCOVERY MODE)
+  command: >
     {{ keycloak_install_dir }}/bin/kcadm.sh create identity-provider/instances
     -r {{ keycloak_realm_name }}
     -s alias={{ item.alias }}
     -s providerId=oidc
     -s enabled=true
     -s displayName="{{ item.display_name }}"
-    -s config.authorizationUrl="https://login.microsoftonline.com/{{ item.tenant_id }}/oauth2/v2.0/authorize"
-    -s config.tokenUrl="https://login.microsoftonline.com/{{ item.tenant_id }}/oauth2/v2.0/token"
-    -s config.logoutUrl="https://login.microsoftonline.com/{{ item.tenant_id }}/oauth2/v2.0/logout"
-    -s config.userInfoUrl="https://graph.microsoft.com/oidc/userinfo"
-    -s config.issuer="https://login.microsoftonline.com/{{ item.tenant_id }}/v2.0"
-    -s config.jwksUrl="https://login.microsoftonline.com/{{ item.tenant_id }}/discovery/v2.0/keys"
-    -s config.validateSignature=true
-    -s config.useJwksUrl=true
+    -s config.discoveryUrl="https://login.microsoftonline.com/{{ item.tenant_id }}/v2.0/.well-known/openid-configuration"
     -s config.clientId="{{ item.client_id }}"
     -s config.clientSecret="{{ item.client_secret }}"
     -s config.defaultScope="{{ item.default_scopes }}"
+    -s config.validateSignature=true
+    -s config.useJwksUrl=true
+    -s config.pkceEnabled=true
     -s config.clientAuthMethod=client_secret_post
   loop: "{{ keycloak_oidc_providers }}"
   become_user: "{{ keycloak_user }}"
