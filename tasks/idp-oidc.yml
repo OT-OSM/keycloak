@@ -11,8 +11,8 @@
     -s storeToken=true
     -s addReadTokenRoleOnCreate=true
     -s config.issuer="{{ item.issuer }}"
-    -s config.clientId="{{ item.client_id }}"
-    -s config.clientSecret="{{ item.client_secret }}"
+    -s config.clientId="{{ item.vault_keycloak_oidc_client_id }}"
+    -s config.clientSecret="{{ item.vault_keycloak_oidc_client_secret }}"
     -s config.defaultScope="{{ item.default_scopes }}"
   loop: "{{ keycloak_oidc_providers }}"
   become_user: "{{ keycloak_user }}"
