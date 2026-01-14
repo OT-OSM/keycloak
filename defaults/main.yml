@@ -113,10 +113,10 @@ keycloak_access_control_enabled: false
 
 # Realm name where roles and groups will be created
 keycloak_realm_name: "master"
-# Admin API endpoint (protocol aware)
-keycloak_admin_protocol: "{{ 'https' if keycloak_https_enabled else 'http' }}"
-keycloak_admin_port: "{{ keycloak_https_port if keycloak_https_enabled else keycloak_http_port }}"
-keycloak_admin_url: "{{ keycloak_admin_protocol }}://localhost:{{ keycloak_admin_port }}"
+keycloak_admin_protocol: "https"
+keycloak_admin_host: "{{ keycloak_public_hostname }}"
+keycloak_admin_port: ""
+keycloak_admin_url: "{{ keycloak_admin_protocol }}://{{ keycloak_admin_host }}"
 
 # ---------------- Realm Roles ----------------
 # Default realm-level roles to create
