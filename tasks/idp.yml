@@ -1,5 +1,4 @@
 ---
----
 - name: Login to Keycloak Admin API
   ansible.builtin.command: >
     {{ keycloak_install_dir }}/bin/kcadm.sh config credentials
@@ -9,7 +8,6 @@
     --password {{ keycloak_admin_password }}
     --insecure
   become_user: "{{ keycloak_user }}"
-  changed_when: false
 
 - name: Configure OIDC Identity Providers
   ansible.builtin.include_tasks: idp-oidc.yml
