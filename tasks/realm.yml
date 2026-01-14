@@ -8,7 +8,6 @@
     --password {{ keycloak_admin_password }}
     --insecure
   become_user: "{{ keycloak_user }}"
-  no_log: true
 
 - name: Disable HTTPS requirement for master realm (DEV / DEMO)
   ansible.builtin.command: >
