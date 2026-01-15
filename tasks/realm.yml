@@ -15,4 +15,4 @@
   become_user: "{{ keycloak_user }}"
   when:
     - keycloak_http_enabled | bool
-    - not keycloak_https_enabled | bool
+    - (keycloak_https_enabled | bool) == false
