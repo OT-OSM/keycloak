@@ -19,11 +19,16 @@
   register: oidc_create
   failed_when: oidc_create.rc != 0
   
-- name: Get Azure IdP internal ID
-  ansible.builtin.command: >
-    {{ keycloak_install_dir }}/bin/kcadm.sh get identity-provider/instances -r master
-  register: idp_list
-  become_user: "{{ keycloak_user }}"
+- name: Extract Azure IdP internalId
+  ansible.builtin.set_fact:
+    azure_idp_internal_id: >-
+      {{ (idp_list.stdout | from_json
+          | selectattr('alias','equalto','azure')
+          | list | first).internalId }}
+  when: >
+    (idp_list.stdout | from_json
+      | selectattr('alias','equalto','azure')
+      | list | length) > 0
 
 - name: Extract Azure IdP internalId
   ansible.builtin.set_fact:
@@ -41,3 +46,4 @@
     -s authenticateByDefault=false
     -s config.guiOrder=1
   become_user: "{{ keycloak_user }}"
+  when: azure_idp_internal_id is defined
