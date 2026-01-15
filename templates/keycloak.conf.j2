@@ -18,12 +18,13 @@ http-host=0.0.0.0
 {% endif %}
 
 # ---------------- HOSTNAME ----------------
-hostname=https://{{ keycloak_public_hostname }}
+hostname={{ keycloak_public_hostname }}
 hostname-strict={{ keycloak_hostname_strict | lower }}
 hostname-strict-https={{ keycloak_hostname_strict_https | lower }}
 
 # ---------------- PROXY ----------------
 proxy={{ keycloak_proxy_mode }}
+proxy-headers=xforwarded
 
 # ---------------- OBSERVABILITY ----------------
 {% if keycloak_observability_enabled | bool %}
