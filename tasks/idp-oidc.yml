@@ -17,9 +17,8 @@
   loop: "{{ keycloak_oidc_providers }}"
   become_user: "{{ keycloak_user }}"
   register: oidc_create
-  failed_when: false
-  changed_when: false
-
+  failed_when: oidc_create.rc != 0
+  
 - name: Get Azure IdP internal ID
   ansible.builtin.command: >
     {{ keycloak_install_dir }}/bin/kcadm.sh get identity-provider/instances -r master
