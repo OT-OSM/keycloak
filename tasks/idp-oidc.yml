@@ -1,4 +1,21 @@
-# 1. Create IdP
+---
+# =========================================================
+# Azure Entra ID OIDC Identity Provider
+# =========================================================
+- name: Get existing Identity Providers
+  ansible.builtin.command: >
+    {{ keycloak_install_dir }}/bin/kcadm.sh get identity-provider/instances -r master
+  register: idp_list
+  become_user: "{{ keycloak_user }}"
+
+- name: Check if Azure IdP exists
+  ansible.builtin.set_fact:
+    azure_idp_exists: >-
+      {{ (idp_list.stdout | from_json
+          | selectattr('alias', 'equalto', 'azure')
+          | list
+          | length) > 0 }}
+
 - name: Create Azure Entra ID OIDC Identity Provider
   ansible.builtin.command: >
     {{ keycloak_install_dir }}/bin/kcadm.sh create identity-provider/instances
@@ -17,30 +34,23 @@
     -s hideOnLogin=false
   loop: "{{ keycloak_oidc_providers }}"
   become_user: "{{ keycloak_user }}"
-  register: oidc_create
-  failed_when: oidc_create.rc != 0
+  when: not azure_idp_exists
 
-# 2. Get IdP list (THIS WAS MISSING AT RUNTIME)
-- name: Get Azure IdP internal ID
+- name: Refresh Identity Providers list
   ansible.builtin.command: >
     {{ keycloak_install_dir }}/bin/kcadm.sh get identity-provider/instances -r master
-  register: idp_list
+  register: idp_list_after
   become_user: "{{ keycloak_user }}"
 
-# 3. Extract internalId SAFELY
 - name: Extract Azure IdP internalId
   ansible.builtin.set_fact:
     azure_idp_internal_id: >-
-      {{ (idp_list.stdout | from_json
-          | selectattr('alias','equalto','azure')
-          | list | first).internalId }}
-  when:
-    - idp_list is defined
-    - idp_list.stdout is defined
-    - (idp_list.stdout | from_json | length) > 0
+      {{ (idp_list_after.stdout | from_json
+          | selectattr('alias', 'equalto', 'azure')
+          | list
+          | first).internalId }}
 
-# 4. Update IdP visibility
-- name: Ensure OIDC IdP is visible on login page
+- name: Ensure Azure OIDC IdP is visible on login page
   ansible.builtin.command: >
     {{ keycloak_install_dir }}/bin/kcadm.sh update identity-provider/instances/{{ azure_idp_internal_id }}
     -r master
@@ -49,4 +59,3 @@
     -s authenticateByDefault=false
     -s config.guiOrder=1
   become_user: "{{ keycloak_user }}"
-  when: azure_idp_internal_id is defined
