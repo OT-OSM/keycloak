@@ -1,3 +1,4 @@
+# 1. Create IdP
 - name: Create Azure Entra ID OIDC Identity Provider
   ansible.builtin.command: >
     {{ keycloak_install_dir }}/bin/kcadm.sh create identity-provider/instances
@@ -18,25 +19,27 @@
   become_user: "{{ keycloak_user }}"
   register: oidc_create
   failed_when: oidc_create.rc != 0
-  
+
+# 2. Get IdP list (THIS WAS MISSING AT RUNTIME)
+- name: Get Azure IdP internal ID
+  ansible.builtin.command: >
+    {{ keycloak_install_dir }}/bin/kcadm.sh get identity-provider/instances -r master
+  register: idp_list
+  become_user: "{{ keycloak_user }}"
+
+# 3. Extract internalId SAFELY
 - name: Extract Azure IdP internalId
   ansible.builtin.set_fact:
     azure_idp_internal_id: >-
       {{ (idp_list.stdout | from_json
           | selectattr('alias','equalto','azure')
           | list | first).internalId }}
-  when: >
-    (idp_list.stdout | from_json
-      | selectattr('alias','equalto','azure')
-      | list | length) > 0
+  when:
+    - idp_list is defined
+    - idp_list.stdout is defined
+    - (idp_list.stdout | from_json | length) > 0
 
-- name: Extract Azure IdP internalId
-  ansible.builtin.set_fact:
-    azure_idp_internal_id: >-
-      {{ (idp_list.stdout | from_json
-          | selectattr('alias','equalto','azure')
-          | list | first).internalId }}
-
+# 4. Update IdP visibility
 - name: Ensure OIDC IdP is visible on login page
   ansible.builtin.command: >
     {{ keycloak_install_dir }}/bin/kcadm.sh update identity-provider/instances/{{ azure_idp_internal_id }}
