@@ -1,13 +1,11 @@
 ---
-- name: Login to Keycloak Admin API
-  ansible.builtin.command: >
+- name: Login to Keycloak using kcadm (local HTTP)
+  command: >
     {{ keycloak_install_dir }}/bin/kcadm.sh config credentials
-    --server {{ keycloak_admin_url }}
+    --server http://127.0.0.1:{{ keycloak_http_port }}
     --realm master
     --user {{ keycloak_admin_user }}
     --password {{ keycloak_admin_password }}
-    --insecure
-  become_user: "{{ keycloak_user }}"
 
 - name: Disable HTTPS requirement for master realm (DEV / DEMO)
   ansible.builtin.command: >
