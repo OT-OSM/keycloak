@@ -14,6 +14,8 @@
     -s config.clientAuthMethod=client_secret_post
     -s config.validateSignature=true
     -s config.useJwksUrl=true
+    -s trustEmail=true
+    -s firstBrokerLoginFlowAlias=first broker login
     -s hideOnLogin=false
     -s authenticateByDefault=false
     -s config.guiOrder=1
