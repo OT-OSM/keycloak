@@ -1,36 +1,53 @@
-# ---------------- DATABASE ----------------
+# =========================================================
+# DATABASE
+# =========================================================
 db=postgres
 db-url=jdbc:postgresql://{{ keycloak_db_host }}:{{ keycloak_db_port }}/{{ keycloak_db_name }}
 db-username={{ keycloak_db_user }}
 
-# ---------------- HTTP / HTTPS ----------------
+# =========================================================
+# HTTP / HTTPS
+# =========================================================
 {% if keycloak_https_enabled | bool %}
-http-enabled=false
 
+# --- HTTPS ENABLED ---
+http-enabled=false
 https-host={{ keycloak_https_host | default('0.0.0.0') }}
 https-port={{ keycloak_https_port }}
 https-certificate-file={{ keycloak_tls_cert_file }}
 https-certificate-key-file={{ keycloak_tls_key_file }}
+
 {% else %}
+
+# --- HTTP ENABLED ---
 http-enabled=true
-http-port={{ keycloak_http_port }}
 http-host=0.0.0.0
+http-port={{ keycloak_http_port }}
+
 {% endif %}
 
-# ---------------- HOSTNAME ----------------
+
+# =========================================================
+# HOSTNAME (CRITICAL FOR SSO / REDIRECTS)
+# =========================================================
 hostname={{ keycloak_public_hostname }}
+hostname-url=https://{{ keycloak_public_hostname }}
 hostname-strict={{ keycloak_hostname_strict | lower }}
 hostname-strict-https={{ keycloak_hostname_strict_https | lower }}
 
-# ---------------- PROXY ----------------
+# =========================================================
+# PROXY (NGINX / LB)
+# =========================================================
 proxy={{ keycloak_proxy_mode }}
 proxy-headers=xforwarded
 
-# ---------------- OBSERVABILITY ----------------
+# =========================================================
+# OBSERVABILITY
+# =========================================================
 {% if keycloak_observability_enabled | bool %}
 http-management-enabled=true
-http-management-port={{ keycloak_management_port }}
 http-management-host=0.0.0.0
+http-management-port={{ keycloak_management_port }}
 
 {% if keycloak_metrics_enabled | bool %}
 metrics-enabled=true
@@ -48,7 +65,9 @@ log-console-output=json
 {% endif %}
 
 
-# ---------------- CLUSTER / HA ----------------
+# =========================================================
+# CLUSTER / HA
+# =========================================================
 {% if keycloak_ha_enabled | bool %}
 
 cache=ispn
