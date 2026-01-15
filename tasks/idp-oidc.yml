@@ -11,10 +11,10 @@
     -s config.clientId="{{ item.client_id }}"
     -s config.clientSecret="{{ item.client_secret }}"
     -s config.defaultScope="{{ item.default_scopes }}"
+    -s config.clientAuthMethod=client_secret_post
     -s config.validateSignature=true
     -s config.useJwksUrl=true
-    -s config.pkceEnabled=true
-    -s config.clientAuthMethod=client_secret_post
+    -s config.guiOrder=1
   loop: "{{ keycloak_oidc_providers }}"
   become_user: "{{ keycloak_user }}"
   register: oidc_create
