@@ -12,7 +12,7 @@
     -s config.defaultScope="openid profile email"
     -s config.clientAuthMethod=client_secret_basic
     -s trustEmail=true
-    -s firstBrokerLoginFlowAlias=first broker login
+    -s firstBrokerLoginFlowAlias="first broker login"
     -s hideOnLogin=false
   loop: "{{ keycloak_oidc_providers }}"
   become_user: "{{ keycloak_user }}"
