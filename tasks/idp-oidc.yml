@@ -57,9 +57,8 @@
     {{ keycloak_install_dir }}/bin/kcadm.sh update identity-provider/instances/{{ oidc_idp_internal_id }}
     -r master
     -s enabled=true
-    -s hideOnLogin=true
+    -s hideOnLogin=false
     -s authenticateByDefault=true
     -s trustEmail=true
     -s firstBrokerLoginFlowAlias="first broker login"
     -s config.guiOrder=1
-  become_user: "{{ keycloak_user }}"
