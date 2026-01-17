@@ -27,7 +27,7 @@
     -s enabled=true
     -s displayName="Login with Azure"
     -s authenticateByDefault=true
-    -s hideOnLogin=true
+    -s hideOnLogin=false
     -s trustEmail=true
     -s firstBrokerLoginFlowAlias="first broker login"
     -s config.discoveryUrl="https://login.microsoftonline.com/{{ item.tenant_id }}/v2.0/.well-known/openid-configuration"
