@@ -1,6 +1,7 @@
 ---
 # =========================================================
 # Azure Entra ID OIDC Identity Provider (DEFAULT LOGIN)
+# Alias = oidc  → Redirect: /broker/oidc/endpoint
 # =========================================================
 
 - name: Get existing Identity Providers
@@ -9,11 +10,11 @@
   register: idp_list
   become_user: "{{ keycloak_user }}"
 
-- name: Check if Azure IdP exists
+- name: Check if OIDC IdP exists
   ansible.builtin.set_fact:
-    azure_idp_exists: >-
+    oidc_idp_exists: >-
       {{ (idp_list.stdout | from_json
-          | selectattr('alias', 'equalto', 'azure')
+          | selectattr('alias', 'equalto', 'oidc')
           | list
           | length) > 0 }}
 
@@ -21,7 +22,7 @@
   ansible.builtin.command: >
     {{ keycloak_install_dir }}/bin/kcadm.sh create identity-provider/instances
     -r master
-    -s alias=azure
+    -s alias=oidc
     -s providerId=oidc
     -s enabled=true
     -s displayName="Login with Azure"
@@ -35,7 +36,7 @@
     -s config.defaultScope="openid profile email"
   loop: "{{ keycloak_oidc_providers }}"
   become_user: "{{ keycloak_user }}"
-  when: not azure_idp_exists
+  when: not oidc_idp_exists
 
 - name: Refresh Identity Providers list
   ansible.builtin.command: >
@@ -43,17 +44,17 @@
   register: idp_list_after
   become_user: "{{ keycloak_user }}"
 
-- name: Extract Azure IdP internalId
+- name: Extract OIDC IdP internalId
   ansible.builtin.set_fact:
-    azure_idp_internal_id: >-
+    oidc_idp_internal_id: >-
       {{ (idp_list_after.stdout | from_json
-          | selectattr('alias', 'equalto', 'azure')
+          | selectattr('alias', 'equalto', 'oidc')
           | list
           | first).internalId }}
 
-- name: Ensure Azure OIDC IdP is default login
+- name: Ensure OIDC IdP is default login
   ansible.builtin.command: >
-    {{ keycloak_install_dir }}/bin/kcadm.sh update identity-provider/instances/{{ azure_idp_internal_id }}
+    {{ keycloak_install_dir }}/bin/kcadm.sh update identity-provider/instances/{{ oidc_idp_internal_id }}
     -r master
     -s enabled=true
     -s hideOnLogin=true
