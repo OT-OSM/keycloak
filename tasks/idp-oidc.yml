@@ -1,14 +1,25 @@
-- name: Ensure Azure Entra ID OIDC Identity Provider exists (create or update)
+---
+# =========================================================
+# Azure Entra ID OIDC Identity Provider
+# =========================================================
+
+- name: Get Identity Providers
   ansible.builtin.command: >
-    {{ keycloak_install_dir }}/bin/kcadm.sh update identity-provider/instances/oidc -r master
+    {{ keycloak_install_dir }}/bin/kcadm.sh get identity-provider/instances -r master
+  register: idp_list
+  become_user: "{{ keycloak_user }}"
+
+- name: Create Azure Entra ID OIDC Identity Provider (if missing)
+  ansible.builtin.command: >
+    {{ keycloak_install_dir }}/bin/kcadm.sh create identity-provider/instances -r master
+    -s alias=oidc
+    -s providerId=oidc
     -s enabled=true
     -s displayName="Login with Azure"
-    -s authenticateByDefault=true
+    -s authenticateByDefault=false
     -s hideOnLogin=false
     -s trustEmail=true
     -s firstBrokerLoginFlowAlias="first broker login"
-    -s config.useDiscoveryEndpoint=true
-    -s config.validateSignature=true
     -s config.discoveryUrl="https://login.microsoftonline.com/{{ item.tenant_id }}/v2.0/.well-known/openid-configuration"
     -s config.clientId="{{ item.client_id }}"
     -s config.clientSecret="{{ item.client_secret }}"
@@ -16,3 +27,27 @@
   loop: "{{ keycloak_oidc_providers }}"
   become_user: "{{ keycloak_user }}"
   failed_when: false
+
+- name: Refresh Identity Providers
+  ansible.builtin.command: >
+    {{ keycloak_install_dir }}/bin/kcadm.sh get identity-provider/instances -r master
+  register: idp_list_after
+  become_user: "{{ keycloak_user }}"
+
+- name: Extract Azure IdP internalId
+  ansible.builtin.set_fact:
+    azure_idp_internal_id: >-
+      {{ (idp_list_after.stdout | from_json
+          | selectattr('alias','equalto','oidc')
+          | list | first).internalId }}
+
+- name: Ensure Azure IdP is visible on login page
+  ansible.builtin.command: >
+    {{ keycloak_install_dir }}/bin/kcadm.sh update identity-provider/instances/{{ azure_idp_internal_id }}
+    -r master
+    -s enabled=true
+    -s displayName="Login with Azure"
+    -s authenticateByDefault=false
+    -s hideOnLogin=false
+    -s config.guiOrder=1
+  become_user: "{{ keycloak_user }}"
