@@ -9,7 +9,10 @@
   register: idp_list
   become_user: "{{ keycloak_user }}"
 
-- name: Ensure Azure Entra ID OIDC Identity Provider exists (create or update)
+---
+# Azure Entra ID OIDC Identity Provider (FINAL WORKING)
+
+- name: Ensure Azure Entra ID OIDC Identity Provider exists
   ansible.builtin.command: >
     {{ keycloak_install_dir }}/bin/kcadm.sh update identity-provider/instances/oidc -r master
     -s alias=oidc
@@ -24,13 +27,7 @@
     -s config.discoveryUrl="https://login.microsoftonline.com/{{ item.tenant_id }}/v2.0/.well-known/openid-configuration"
     -s config.clientId="{{ item.client_id }}"
     -s config.clientSecret="{{ item.client_secret }}"
-    -s config.clientAuthMethod=client_secret_basic
-    -s config.authorizationUrl="https://login.microsoftonline.com/{{ item.tenant_id }}/oauth2/v2.0/authorize"
-    -s config.tokenUrl="https://login.microsoftonline.com/{{ item.tenant_id }}/oauth2/v2.0/token"
     -s config.defaultScope="openid profile email"
-    -s config.validateSignature=true
-    -s config.useJwksUrl=true
-    -s config.guiOrder=1
   loop: "{{ keycloak_oidc_providers }}"
   become_user: "{{ keycloak_user }}"
   failed_when: false
