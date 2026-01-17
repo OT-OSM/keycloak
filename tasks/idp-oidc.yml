@@ -1,27 +1,17 @@
 ---
-# =========================================================
-# Azure Entra ID OIDC Identity Provider (DEFAULT LOGIN)
-# Alias = oidc  → Redirect: /broker/oidc/endpoint
-# =========================================================
-
-- name: Get existing Identity Providers
+- name: Login to Keycloak Admin API
   ansible.builtin.command: >
-    {{ keycloak_install_dir }}/bin/kcadm.sh get identity-provider/instances -r master
-  register: idp_list
+    {{ keycloak_install_dir }}/bin/kcadm.sh config credentials
+    --server {{ keycloak_admin_url }}
+    --realm master
+    --user {{ keycloak_admin_user }}
+    --password {{ keycloak_admin_password }}
+    --insecure
   become_user: "{{ keycloak_user }}"
 
-- name: Check if OIDC IdP exists
-  ansible.builtin.set_fact:
-    oidc_idp_exists: >-
-      {{ (idp_list.stdout | from_json
-          | selectattr('alias', 'equalto', 'oidc')
-          | list
-          | length) > 0 }}
-
-- name: Create Azure Entra ID OIDC Identity Provider (default)
+- name: Ensure Azure Entra ID OIDC Identity Provider exists (create or update)
   ansible.builtin.command: >
-    {{ keycloak_install_dir }}/bin/kcadm.sh create identity-provider/instances
-    -r master
+    {{ keycloak_install_dir }}/bin/kcadm.sh create identity-provider/instances -r master
     -s alias=oidc
     -s providerId=oidc
     -s enabled=true
@@ -36,29 +26,21 @@
     -s config.defaultScope="openid profile email"
   loop: "{{ keycloak_oidc_providers }}"
   become_user: "{{ keycloak_user }}"
-  when: not oidc_idp_exists
+  register: oidc_create
+  failed_when: false
 
-- name: Refresh Identity Providers list
+- name: Update Azure Entra ID OIDC Identity Provider (if already exists)
   ansible.builtin.command: >
-    {{ keycloak_install_dir }}/bin/kcadm.sh get identity-provider/instances -r master
-  register: idp_list_after
-  become_user: "{{ keycloak_user }}"
-
-- name: Extract OIDC IdP internalId
-  ansible.builtin.set_fact:
-    oidc_idp_internal_id: >-
-      {{ (idp_list_after.stdout | from_json
-          | selectattr('alias', 'equalto', 'oidc')
-          | list
-          | first).internalId }}
-
-- name: Ensure OIDC IdP is default login
-  ansible.builtin.command: >
-    {{ keycloak_install_dir }}/bin/kcadm.sh update identity-provider/instances/{{ oidc_idp_internal_id }}
-    -r master
+    {{ keycloak_install_dir }}/bin/kcadm.sh update identity-provider/instances/oidc -r master
     -s enabled=true
-    -s hideOnLogin=false
+    -s displayName="Login with Azure"
     -s authenticateByDefault=true
+    -s hideOnLogin=false
     -s trustEmail=true
     -s firstBrokerLoginFlowAlias="first broker login"
-    -s config.guiOrder=1
+    -s config.discoveryUrl="https://login.microsoftonline.com/{{ item.tenant_id }}/v2.0/.well-known/openid-configuration"
+    -s config.clientId="{{ item.client_id }}"
+    -s config.clientSecret="{{ item.client_secret }}"
+    -s config.defaultScope="openid profile email"
+  loop: "{{ keycloak_oidc_providers }}"
+  become_user: "{{ keycloak_user }}"
