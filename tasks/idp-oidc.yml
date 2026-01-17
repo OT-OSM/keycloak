@@ -24,11 +24,13 @@
     -s config.discoveryUrl="https://login.microsoftonline.com/{{ item.tenant_id }}/v2.0/.well-known/openid-configuration"
     -s config.clientId="{{ item.client_id }}"
     -s config.clientSecret="{{ item.client_secret }}"
+    -s config.clientAuthMethod=client_secret_post
+    -s config.authorizationUrl="https://login.microsoftonline.com/{{ item.tenant_id }}/oauth2/v2.0/authorize"
+    -s config.tokenUrl="https://login.microsoftonline.com/{{ item.tenant_id }}/oauth2/v2.0/token"
     -s config.defaultScope="openid profile email"
     -s config.validateSignature=true
     -s config.useJwksUrl=true
     -s config.guiOrder=1
-    -s config.clientAuthMethod=client_secret_post
   loop: "{{ keycloak_oidc_providers }}"
   become_user: "{{ keycloak_user }}"
   failed_when: false
