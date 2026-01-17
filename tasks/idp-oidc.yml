@@ -8,6 +8,7 @@
     -s trustEmail=true
     -s firstBrokerLoginFlowAlias="first broker login"
     -s config.useDiscoveryEndpoint=true
+    -s config.validateSignature=true
     -s config.discoveryUrl="https://login.microsoftonline.com/{{ item.tenant_id }}/v2.0/.well-known/openid-configuration"
     -s config.clientId="{{ item.client_id }}"
     -s config.clientSecret="{{ item.client_secret }}"
