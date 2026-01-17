@@ -16,7 +16,7 @@
     -s providerId=oidc
     -s enabled=true
     -s displayName="Login with Azure"
-    -s authenticateByDefault=false
+    -s authenticateByDefault=true
     -s hideOnLogin=false
     -s trustEmail=true
     -s firstBrokerLoginFlowAlias="first broker login"
