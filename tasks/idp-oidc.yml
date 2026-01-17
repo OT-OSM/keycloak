@@ -29,7 +29,7 @@
   register: oidc_create
   failed_when: false
 
-- name: Update Azure Entra ID OIDC Identity Provider (if already exists)
+- name: Update Azure Entra ID OIDC Identity Provider
   ansible.builtin.command: >
     {{ keycloak_install_dir }}/bin/kcadm.sh update identity-provider/instances/oidc -r master
     -s enabled=true
