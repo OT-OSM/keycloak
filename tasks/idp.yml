@@ -9,8 +9,9 @@
     --insecure
   become_user: "{{ keycloak_user }}"
 
-- name: Configure OIDC Identity Providers
+- name: Configure OIDC Identity Providers (leader only)
   ansible.builtin.include_tasks: idp-oidc.yml
   when:
     - keycloak_identity_providers.oidc | bool
     - keycloak_oidc_providers | length > 0
+    - inventory_hostname == groups['keycloak_nodes'][0]
