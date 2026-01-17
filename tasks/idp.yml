@@ -1,17 +1,14 @@
 ---
-- name: Login to Keycloak Admin API
-  ansible.builtin.command: >
-    {{ keycloak_install_dir }}/bin/kcadm.sh config credentials
-    --server {{ keycloak_admin_url }}
-    --realm master
-    --user {{ keycloak_admin_user }}
-    --password {{ keycloak_admin_password }}
-    --insecure
-  become_user: "{{ keycloak_user }}"
-
 - name: Configure OIDC Identity Providers (leader only)
   ansible.builtin.include_tasks: idp-oidc.yml
   when:
     - keycloak_identity_providers.oidc | bool
     - keycloak_oidc_providers | length > 0
     - inventory_hostname == groups['keycloak_nodes'][0]
+    
+- name: Configure OIDC Identity Providers (leader only)
+  ansible.builtin.include_tasks: idp-oidc.yml
+  when:
+    - keycloak_identity_providers.oidc | bool
+    - keycloak_oidc_providers | length > 0
+    - inventory_hostname == (groups['keycloak_nodes'] | default([]) | first)
