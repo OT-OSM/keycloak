@@ -102,7 +102,6 @@ keycloak_saml_providers: []
 #     single_sign_on_service_url: "https://idp.example.com/sso"
 #     signing_certificate: "/etc/keycloak/saml/idp.crt"
 
-
 # ---------------- Access Control ----------------
 # Baseline access control support using realm import
 # This creates realm roles and groups, and maps roles to groups.
@@ -147,7 +146,6 @@ keycloak_group_role_mappings:
     - developer
   viewers:
     - viewer
-
 
 # ---------------- Observability ----------------
 keycloak_observability_enabled: true
