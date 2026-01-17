@@ -88,5 +88,9 @@
     that:
       - keycloak_cluster_name | length > 0
       - keycloak_node_name | length > 0
-    fail_msg: "HA enabled but cluster_name or node_name missing"
-  when: keycloak_ha_enabled | bool
+    fail_msg: >
+      HA is enabled but keycloak_cluster_name or keycloak_node_name is missing.
+      Please provide explicit node identity for each Keycloak node.
+  when:
+    - keycloak_ha_enabled | bool
+    - keycloak_node_name | default('') | length == 0 or keycloak_cluster_name | default('') | length == 0
