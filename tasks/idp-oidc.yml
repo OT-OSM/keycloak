@@ -1,17 +1,7 @@
 ---
-- name: Login to Keycloak Admin API
-  ansible.builtin.command: >
-    {{ keycloak_install_dir }}/bin/kcadm.sh config credentials
-    --server {{ keycloak_admin_url }}
-    --realm master
-    --user {{ keycloak_admin_user }}
-    --password {{ keycloak_admin_password }}
-    --insecure
-  become_user: "{{ keycloak_user }}"
-
 - name: Ensure Azure Entra ID OIDC Identity Provider exists (create or update)
   ansible.builtin.command: >
-    {{ keycloak_install_dir }}/bin/kcadm.sh create identity-provider/instances -r master
+    {{ keycloak_install_dir }}/bin/kcadm.sh update identity-provider/instances/oidc -r master
     -s alias=oidc
     -s providerId=oidc
     -s enabled=true
@@ -26,21 +16,4 @@
     -s config.defaultScope="openid profile email"
   loop: "{{ keycloak_oidc_providers }}"
   become_user: "{{ keycloak_user }}"
-  register: oidc_create
   failed_when: false
-
-- name: Update Azure Entra ID OIDC Identity Provider
-  ansible.builtin.command: >
-    {{ keycloak_install_dir }}/bin/kcadm.sh update identity-provider/instances/oidc -r master
-    -s enabled=true
-    -s displayName="Login with Azure"
-    -s authenticateByDefault=true
-    -s hideOnLogin=false
-    -s trustEmail=true
-    -s firstBrokerLoginFlowAlias="first broker login"
-    -s config.discoveryUrl="https://login.microsoftonline.com/{{ item.tenant_id }}/v2.0/.well-known/openid-configuration"
-    -s config.clientId="{{ item.client_id }}"
-    -s config.clientSecret="{{ item.client_secret }}"
-    -s config.defaultScope="openid profile email"
-  loop: "{{ keycloak_oidc_providers }}"
-  become_user: "{{ keycloak_user }}"
